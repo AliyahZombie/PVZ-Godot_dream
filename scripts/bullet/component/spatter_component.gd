@@ -12,7 +12,7 @@ class_name SpatterComponent
 @export var spatter_lane_up_down := -1
 
 ## 溅射伤害
-func spatter_all_area_zombie(direct_hit_enemy:Character000Base, bullet_lane:int=-1):
+func spatter_all_area_zombie(direct_hit_enemy:Character000Base, lane:int=-1):
 	var areas = area_2d_spatter.get_overlapping_areas()
 	var all_splatter_enemy:Array[Character000Base] = []
 	for area in areas:
@@ -24,10 +24,10 @@ func spatter_all_area_zombie(direct_hit_enemy:Character000Base, bullet_lane:int=
 	if all_splatter_enemy.is_empty():
 		return
 	else:
-		var damage_per_enemy: int = clampi(sum_attack_value / all_splatter_enemy.size(), range_attack_value.x, range_attack_value.y)
+		var damage_per_enemy: int = clampi(int(float(sum_attack_value) / all_splatter_enemy.size()), range_attack_value.x, range_attack_value.y)
 		for enemy:Character000Base in all_splatter_enemy:
 
-			if spatter_lane_up_down==-1 or bullet_lane==-1 or (bullet_lane+spatter_lane_up_down>=enemy.lane and bullet_lane-spatter_lane_up_down <=enemy.lane):
+			if spatter_lane_up_down==-1 or lane==-1 or (lane+spatter_lane_up_down>=enemy.lane and lane-spatter_lane_up_down <=enemy.lane):
 				attack_enemy(enemy, damage_per_enemy)
 
 func attack_enemy(enemy:Character000Base, damage_per_enemy:int):

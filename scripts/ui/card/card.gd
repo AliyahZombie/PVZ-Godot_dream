@@ -9,8 +9,6 @@ var _is_cooling : bool = false		# 是否正在冷却
 var is_sun_enough: bool = true		# 阳光是否足够
 var _cool_timer : float				# 冷却计时器
 var is_can_click := true		## 是否可以点击
-var is_seed_rain_card := false	## 是否为种子雨卡片, ## 种子雨卡片点击后取消鼠标检测,结束后启用鼠标检测
-
 var tween_blink:Tween
 #region 开局选卡相关
 ## 开局选择卡片时 是否被选中
@@ -29,7 +27,7 @@ signal signal_card_use_end(card:Card)
 func _ready() -> void:
 	super()
 	_cool_mask.value = 0
-	if is_initater:
+	if is_imitater:
 		character_static.material = IMITATER.duplicate()
 		for child in character_static.get_children():
 			GlobalUtils.node_use_parent_material(child)

@@ -25,6 +25,8 @@ var plant_cell:PlantCell
 var is_death_free:= true
 ## 是否为模仿者材质
 var is_imitater_material:=false
+## 是否为我是僵尸模式
+var is_zombie_mode:=false
 #endregion
 
 #region 植物动画
@@ -68,12 +70,14 @@ enum E_PInitAttr{
 	PlantCell,			## 植物格子
 	IsImitaterMaterial,	## 是否为模仿者材质
 	GardenDate,			## 花园数据
+	IsZombieMode,			## 我是僵尸模式
 }
 ## 植物初始化相关, 创建植物时 加入场景树之前赋值
 func init_plant(plant_init_para:Dictionary):
 	#init_type:E_CharacterInitType=E_CharacterInitType.IsNorm, plant_cell:PlantCell=null, garden_date:Dictionary={}) -> void:
 	self.character_init_type = plant_init_para[E_PInitAttr.CharacterInitType]
 	self.is_imitater_material = plant_init_para.get(E_PInitAttr.IsImitaterMaterial, false)
+	self.is_zombie_mode = plant_init_para.get(E_PInitAttr.IsZombieMode, false)
 	match character_init_type:
 		E_CharacterInitType.IsNorm:
 			self.plant_cell = plant_init_para[E_PInitAttr.PlantCell]
@@ -120,14 +124,7 @@ func ready_norm():
 	if is_sleep_in_day:
 		sleep_component.judge_is_sleeping()
 
-	## 斜面与水平面的差值
-	var diff_slope_flat:float = 0
-	if is_instance_valid(plant_cell):
-		diff_slope_flat = plant_cell.position.y
-
-	if diff_slope_flat != 0:
-		for n in node2d_detect_in_slope:
-			n.position.y -= diff_slope_flat
+	GlobalUtils.update_plant_cell_slope_y_array(plant_cell, node2d_detect_in_slope)
 
 ## 初始化展示角色
 func ready_show():
@@ -172,7 +169,8 @@ func be_zombie_eat_once(attack_zombie:Zombie000Base):
 	body.body_light()
 	_be_zombie_eat_once_special(attack_zombie)
 
-## 被僵尸啃食一次特殊效果,魅惑\大蒜
+
+## 被僵尸啃食一次特殊效果,魅惑\大蒜\我是僵尸生产阳光
 func _be_zombie_eat_once_special(_attack_zombie:Zombie000Base):
 	pass
 

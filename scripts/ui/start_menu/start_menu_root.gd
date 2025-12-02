@@ -3,6 +3,7 @@ class_name StartMenuRoot
 
 @onready var dialog: Dialog = $Dialog
 @export var bgm:AudioStream
+@onready var user: User = $User
 
 
 # Called when the node enters the scene tree for the first time.
@@ -29,13 +30,17 @@ func _unrealized():
 
 ## 开始游戏
 func _on_menu_button_1_pressed() -> void:
-	get_tree().change_scene_to_file(Global.MainScenesMap[Global.MainScenes.ChooseLevel])
+	get_tree().change_scene_to_file(Global.MainScenesMap[Global.MainScenes.ChooseLevelAdventure])
 
 ## 迷你游戏
 func _on_button_2_pressed() -> void:
 	get_tree().change_scene_to_file(Global.MainScenesMap[Global.MainScenes.ChooseLevelMiniGame])
 
+## 解密模式
+func _on_button_3_pressed() -> void:
+	get_tree().change_scene_to_file(Global.MainScenesMap[Global.MainScenes.ChooseLevelPuzzle])
 
+## 生存模式
 func _on_button_4_pressed() -> void:
 	get_tree().change_scene_to_file(Global.MainScenesMap[Global.MainScenes.ChooseLevelSurvival])
 
@@ -68,3 +73,10 @@ func _on_item_button_1_pressed() -> void:
 func _on_item_button_2_pressed() -> void:
 	get_tree().change_scene_to_file(Global.MainScenesMap[Global.MainScenes.Almanac])
 
+## 商店
+func _on_item_button_3_pressed() -> void:
+	get_tree().change_scene_to_file(Global.MainScenesMap[Global.MainScenes.Store])
+
+## 点击用户更新时
+func _on_button_update_user_pressed() -> void:
+	user.visible = true

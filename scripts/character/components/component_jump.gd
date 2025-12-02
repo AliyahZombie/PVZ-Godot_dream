@@ -37,6 +37,9 @@ signal signal_jump_end()
 ## 跳跃结束后摇结束
 signal signal_jump_end_end()
 
+## 我是僵尸模式检测脑子
+signal signal_detect_brain()
+
 @warning_ignore("unused_parameter")
 func _process(delta: float) -> void:
 	if is_jump_compensate and is_jumping:
@@ -142,3 +145,9 @@ func _on_enemy_zombie_status_change(zombie:Zombie000Base):
 
 func _play_jump_SFX():
 	SoundManager.play_character_SFX(jump_sfx)
+
+
+func _on_area_2d_brain_area_entered(area: Area2D) -> void:
+	## 我是僵尸模式的脑子
+	if area.owner is BrainOnZombieMode:
+		signal_detect_brain.emit()

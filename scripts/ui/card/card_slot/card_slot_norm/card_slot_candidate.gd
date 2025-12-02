@@ -58,7 +58,7 @@ func _init_card_slot_candidate_imitater():
 		## 当前植物类型对应的card
 		var curr_plant_card = AllCards.all_plant_card_prefabs[Global.curr_plant[i]]
 		var new_card = curr_plant_card.duplicate()
-		new_card.is_initater = true
+		new_card.is_imitater = true
 		var card_candidate_container: CardCandidateContainer = SceneRegistry.CARD_CANDIDATE_CONTAINER.instantiate()
 
 		card_candidate_container.init_card_in_seed_chooser(new_card)

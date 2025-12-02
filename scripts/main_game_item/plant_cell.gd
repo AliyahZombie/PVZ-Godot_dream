@@ -66,6 +66,7 @@ enum E_SpecialStatePlant {
 	IsTombstone,	# 墓碑
 	IsCrater,		# 坑洞
 	IsIceRoad,		# 冰道
+	IsPot,			# 罐子
 	IsNoPlantBowling,		# 不能种植（保龄球红线模式不能种植）
 }
 
@@ -130,7 +131,18 @@ func be_gargantuar_attack(zombie_gargantuar:Zombie000Base):
 	for place_plant_in_cell in plant_in_cell:
 		if is_instance_valid(plant_in_cell[place_plant_in_cell]) and plant_in_cell[place_plant_in_cell].hurt_box_component.is_enabling:
 			## 被压扁
-			plant_in_cell[place_plant_in_cell].be_flattened(zombie_gargantuar)
+			plant_in_cell[place_plant_in_cell].be_flattened_from_enemy(zombie_gargantuar)
+	if is_instance_valid(pot):
+		pot.open_pot_be_gargantuar()
+
+
+func plant_be_flattened():
+	for place_plant_in_cell in plant_in_cell:
+		if is_instance_valid(plant_in_cell[place_plant_in_cell]):
+			## 被压扁
+			plant_in_cell[place_plant_in_cell].be_flattened()
+			print(plant_in_cell[place_plant_in_cell].name, "被压扁")
+
 #endregion
 
 #region 植物(僵尸)种植(死亡)
@@ -143,7 +155,8 @@ func imitater_create_plant(plant_type:Global.PlantType, is_plant_start_effect:=t
 ##[is_imitater:bool] 植物是否为模仿者
 ##[is_plant_start_effect:bool] 是否有种植特效
 ##[is_imitater_material:bool] 是否为模仿者材质
-func create_plant(plant_type:Global.PlantType, is_imitater:=false, is_plant_start_effect:=true, is_imitater_material:=false) -> Plant000Base:
+##[is_zombie_mode:bool] 是否为我是僵尸模式
+func create_plant(plant_type:Global.PlantType, is_imitater:=false, is_plant_start_effect:=true, is_imitater_material:=false, is_zombie_mode:=false) -> Plant000Base:
 	var plant_condition:ResourcePlantCondition
 	var plant :Plant000Base
 	## 创建植物
@@ -166,6 +179,7 @@ func create_plant(plant_type:Global.PlantType, is_imitater:=false, is_plant_star
 		else:
 			## 非紫卡 如果该位置已经存在植物,返回
 			if is_instance_valid(plant_in_cell[plant_condition.place_plant_in_cell]):
+				print("当前位置", row_col, "已经有植物：", plant_in_cell[plant_condition.place_plant_in_cell].name)
 				return
 
 		plant = Global.get_plant_info(plant_type, Global.PlantInfoAttribute.PlantScenes).instantiate()
@@ -173,7 +187,8 @@ func create_plant(plant_type:Global.PlantType, is_imitater:=false, is_plant_star
 	var plant_init_para = {
 		Plant000Base.E_PInitAttr.CharacterInitType:Character000Base.E_CharacterInitType.IsNorm,
 		Plant000Base.E_PInitAttr.PlantCell:self,
-		Plant000Base.E_PInitAttr.IsImitaterMaterial:is_imitater_material
+		Plant000Base.E_PInitAttr.IsImitaterMaterial:is_imitater_material,
+		Plant000Base.E_PInitAttr.IsZombieMode:is_zombie_mode
 	}
 	plant.init_plant(plant_init_para)
 	plant_container_node[plant_condition.place_plant_in_cell].add_child(plant)
@@ -221,7 +236,6 @@ func get_new_plant_static_shadow_global_position(place_plant_in_cell:Global.Plac
 func one_plant_free(plant:Plant000Base):
 	var curr_plant_condition :ResourcePlantCondition = Global.get_plant_info(plant.plant_type, Global.PlantInfoAttribute.PlantConditionResource)
 
-
 	if is_instance_valid(ladder):
 		if curr_plant_condition.place_plant_in_cell in [Global.PlacePlantInCell.Down, Global.PlacePlantInCell.Norm, Global.PlacePlantInCell.Shell]:
 			ladder.ladder_death()
@@ -229,7 +243,6 @@ func one_plant_free(plant:Plant000Base):
 	#plant_in_cell[curr_plant_condition.place_plant_in_cell] = null
 	## 如果是down位置植物，下降中间植物和壳的位置，修改节点结构
 	if curr_plant_condition.place_plant_in_cell == Global.PlacePlantInCell.Down:
-
 		## 中间植物的节点修改回来
 		plant.down_plant_container.remove_child(plant_container_node[Global.PlacePlantInCell.Norm])
 		add_child(plant_container_node[Global.PlacePlantInCell.Norm])
@@ -319,7 +332,9 @@ func be_bungi()->Node2D:
 #region 墓碑相关
 ## 创建墓碑
 func create_tombstone():
-	var new_tombstone :Node2D= SceneRegistry.TOMBSTONE.instantiate()
+	if is_instance_valid(tombstone):
+		print("当前植物格子", row_col, "已经有墓碑， 创建墓碑失败")
+		return
 	## 被墓碑顶掉的植物
 	var all_place_plant_in_cell_be_tombstone = [
 		Global.PlacePlantInCell.Norm,
@@ -332,7 +347,7 @@ func create_tombstone():
 		if is_instance_valid(plant_in_cell[place_plant_in_cell]):
 			plant_in_cell[place_plant_in_cell].character_death()
 
-	self.tombstone = new_tombstone
+	tombstone = SceneRegistry.TOMBSTONE.instantiate()
 	tombstone.init_tombstone(self)
 	add_child(tombstone)
 	tombstone.position = Vector2(size.x / 2, size.y)
@@ -340,22 +355,15 @@ func create_tombstone():
 
 	Global.main_game.plant_cell_manager.tombstone_list.append(tombstone)
 
-## 开始吞噬墓碑，墓碑是墓碑吞噬者调用该函数
-func start_eat_tombstone():
-	tombstone.start_be_grave_buster_eat()
 
-## 吞噬墓碑失败
-func failure_eat_tombstone():
-	tombstone.failure_eat_tombstone()
-
-## 刪除墓碑，墓碑是墓碑吞噬者调用该函数
-func delete_tombstone():
+## 刪除墓碑，墓碑死亡时调用该函数
+func tombstone_death_update_plant_cell_data():
 	signal_cell_delete_tombstone.emit(self, tombstone)
 	Global.main_game.plant_cell_manager.tombstone_list.erase(tombstone)
-	tombstone.queue_free()
 	## 等到墓碑被删除后，下一帧更新（如果鼠标拿着新植物在当前格子中，可以更新）
 	await get_tree().process_frame
 	update_special_state_plant(false, E_SpecialStatePlant.IsTombstone)
+
 #endregion
 
 #region 坑洞相关
@@ -368,9 +376,7 @@ func create_crater():
 	update_special_state_plant(true, E_SpecialStatePlant.IsCrater)
 
 ## 坑洞调用该函数，坑洞是自己消失后调用该函数
-func delete_crater():
-	crater.queue_free()
-
+func delete_crater_update_plant_cell_data():
 	update_special_state_plant(false, E_SpecialStatePlant.IsCrater)
 
 #endregion
@@ -379,10 +385,10 @@ func delete_crater():
 func add_new_ice_road(new_ice_road:IceRoad):
 	curr_ice_roads.append(new_ice_road)
 	update_special_state_plant(true, E_SpecialStatePlant.IsIceRoad)
-	new_ice_road.signal_ice_road_disappear.connect(del_new_ice_road.bind(new_ice_road))
+	new_ice_road.signal_ice_road_disappear.connect(del_new_ice_road_update_plant_cell_data.bind(new_ice_road))
 
 ## 删除冰道
-func del_new_ice_road(new_ice_road):
+func del_new_ice_road_update_plant_cell_data(new_ice_road):
 	curr_ice_roads.erase(new_ice_road)
 	if curr_ice_roads.is_empty():
 		update_special_state_plant(false, E_SpecialStatePlant.IsIceRoad)
@@ -397,6 +403,28 @@ func set_bowling_no_plant():
 ## 设置保龄球不能僵尸
 func set_bowling_no_zombie():
 	update_special_state_zombie(true, E_SpecialStateZombie.IsNoPlantBowling)
+#endregion
+
+#region 罐子
+var pot:ScaryPot
+const SCARY_POT = preload("uid://bfhjvru3xr23t")
+
+## 生成一个罐子
+func create_pot(pot_para:Dictionary) -> ScaryPot:
+	if is_instance_valid(pot):
+		return
+	pot = SCARY_POT.instantiate()
+	pot.init_pot(pot_para)
+	add_child(pot)
+	pot.position = Vector2(size.x / 2, size.y)
+
+	update_special_state_plant(true, E_SpecialStatePlant.IsPot)
+
+	return pot
+
+## 打开罐子后更新数据
+func open_pot_update_plant_cell_data():
+	update_special_state_plant(false, E_SpecialStatePlant.IsPot)
 #endregion
 
 #endregion
@@ -523,6 +551,7 @@ func get_plant_ladder() -> Plant000Base:
 
 #endregion
 
+
 ## 获取周围一圈(包括本身格子)的某个植物
 func get_plant_surrounding(p_t:Global.PlantType) -> Array[Plant000Base]:
 	var all_plant:Array[Plant000Base] = []
@@ -534,6 +563,14 @@ func get_plant_surrounding(p_t:Global.PlantType) -> Array[Plant000Base]:
 			if is_instance_valid(p_c.plant_in_cell[plant_condition.place_plant_in_cell]) and p_c.plant_in_cell[plant_condition.place_plant_in_cell].plant_type == p_t:
 				all_plant.append(p_c.plant_in_cell[plant_condition.place_plant_in_cell])
 	return all_plant
+
+## 获取周围一圈的植物格子，包括本身
+func get_plant_cell_surrounding()->Array[PlantCell]:
+	var all_plant_cells_surrounding:Array[PlantCell]
+	for i in range(max(0, row_col.x-1), min(Global.main_game.plant_cell_manager.row_col.x, row_col.x+2)):
+		for j in range(max(0, row_col.y-1), min(Global.main_game.plant_cell_manager.row_col.y, row_col.y+2)):
+			all_plant_cells_surrounding.append(Global.main_game.plant_cell_manager.all_plant_cells[i][j])
+	return all_plant_cells_surrounding
 
 #region 存档
 ## 植物格子存档
@@ -558,11 +595,11 @@ func load_game_data_plant_cell(save_game_data_plant_cell:ResourceSaveGamePlantCe
 	if save_game_data_plant_cell.is_ladder:
 		be_ladder()
 
-### 清除当前植物格子数据
-#func clear_data_plant_cell():
-	#for place_plant_in_cell in plant_in_cell:
-		#if is_instance_valid(plant_in_cell[place_plant_in_cell]):
-			#plant_in_cell[place_plant_in_cell].character_death_disappear()
+## 清除当前植物格子数据
+func clear_data_plant_cell():
+	for place_plant_in_cell in plant_in_cell:
+		if is_instance_valid(plant_in_cell[place_plant_in_cell]):
+			plant_in_cell[place_plant_in_cell].character_death_disappear()
 
 
 ## 读档时创建植物

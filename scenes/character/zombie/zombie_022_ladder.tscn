@@ -1,8 +1,9 @@
-[gd_scene load_steps=97 format=3 uid="uid://brb8agaox0tsd"]
+[gd_scene load_steps=101 format=3 uid="uid://brb8agaox0tsd"]
 
 [ext_resource type="PackedScene" uid="uid://cktksmdbn2nmn" path="res://scenes/character/zombie/zombie_000_base.tscn" id="1_5r6ob"]
 [ext_resource type="Script" uid="uid://di1wcpobaqk55" path="res://scripts/character/zombie/zombie_022_ladder.gd" id="2_5r6ob"]
 [ext_resource type="Texture2D" uid="uid://b0dn23onkha70" path="res://assets/reanim/Zombie_ladder_innerleg_foot.png" id="3_5x3ws"]
+[ext_resource type="Texture2D" uid="uid://c56eve4tvxpgc" path="res://assets/reanim/Zombie_innerarm_hand.png" id="3_lxu84"]
 [ext_resource type="Texture2D" uid="uid://o86qt5wah67t" path="res://assets/reanim/Zombie_ladder_innerarm_lower.png" id="4_sq6ys"]
 [ext_resource type="Texture2D" uid="uid://cyiygssae4ub7" path="res://assets/reanim/Zombie_ladder_innerleg_upper.png" id="5_ouotv"]
 [ext_resource type="Texture2D" uid="uid://bloe6y2yva68a" path="res://assets/reanim/Zombie_ladder_innerleg_lower.png" id="6_jarv0"]
@@ -17,6 +18,7 @@
 [ext_resource type="Texture2D" uid="uid://oufplhkaj3cg" path="res://assets/reanim/Zombie_ladder_head.png" id="15_wi3j7"]
 [ext_resource type="Texture2D" uid="uid://dxoc5d5tdvntc" path="res://assets/reanim/Zombie_ladder_1.png" id="16_vv6a1"]
 [ext_resource type="Texture2D" uid="uid://cjkss2e6adb77" path="res://assets/reanim/Zombie_ladder_outerarm_hand2.png" id="17_6vlgr"]
+[ext_resource type="Texture2D" uid="uid://duyqfy4j8isia" path="res://assets/reanim/Zombie_outerarm_hand.png" id="18_c2olq"]
 [ext_resource type="Texture2D" uid="uid://c6j7mxdus44p5" path="res://assets/reanim/Zombie_ladder_outerarm_lower.png" id="18_rtcis"]
 [ext_resource type="Texture2D" uid="uid://ba0y3neh86iee" path="res://assets/reanim/Zombie_ladder_outerarm_upper.png" id="19_dkkww"]
 [ext_resource type="Texture2D" uid="uid://bxwk71dlbdp7h" path="res://assets/reanim/Zombie_ladder_innerarm_hand.png" id="20_fntal"]
@@ -1144,14 +1146,25 @@ nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_4hs72")
 nodes/TimeScale/position = Vector2(307.273, 126.364)
 node_connections = [&"output", 0, &"TimeScale", &"TimeScale", 0, &"Animation"]
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_hwg3b"]
+animation = &"Zombie_ladder_ladderwalk"
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_4iwad"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_hwg3b"]
+graph_offset = Vector2(-150, -17)
+nodes/output/position = Vector2(400, 140)
+nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_4iwad")
+nodes/TimeScale/position = Vector2(220, 140)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_hwg3b")
+nodes/Animation/position = Vector2(-80, 120)
+node_connections = [&"output", 0, &"TimeScale", &"TimeScale", 0, &"Animation"]
+
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_5x3ws"]
 animation = &"Zombie_ladder_death"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ouotv"]
 animation = &"Zombie_ladder_idle"
-
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qwrc3"]
-animation = &"Zombie_ladder_ladderwalk"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_lcajd"]
 animation = &"Zombie_ladder_placeladder"
@@ -1274,25 +1287,25 @@ states/BlendTree_eat/node = SubResource("AnimationNodeBlendTree_6vlgr")
 states/BlendTree_eat/position = Vector2(745, 277)
 states/BlendTree_laddereat/node = SubResource("AnimationNodeBlendTree_5r6ob")
 states/BlendTree_laddereat/position = Vector2(745, 100)
+states/BlendTree_ladderwalk/node = SubResource("AnimationNodeBlendTree_hwg3b")
+states/BlendTree_ladderwalk/position = Vector2(443, 100)
 states/End/position = Vector2(1028, 73)
 states/Start/position = Vector2(135, 100)
 states/Zombie_ladder_death/node = SubResource("AnimationNodeAnimation_5x3ws")
 states/Zombie_ladder_death/position = Vector2(577, 383)
 states/Zombie_ladder_idle/node = SubResource("AnimationNodeAnimation_ouotv")
 states/Zombie_ladder_idle/position = Vector2(284, 10)
-states/Zombie_ladder_ladderwalk/node = SubResource("AnimationNodeAnimation_qwrc3")
-states/Zombie_ladder_ladderwalk/position = Vector2(443, 100)
 states/Zombie_ladder_placeladder/node = SubResource("AnimationNodeAnimation_lcajd")
 states/Zombie_ladder_placeladder/position = Vector2(572, 184)
 states/Zombie_ladder_walk/node = SubResource("AnimationNodeAnimation_e6t4g")
 states/Zombie_ladder_walk/position = Vector2(443, 277)
-transitions = ["Start", "Zombie_ladder_idle", SubResource("AnimationNodeStateMachineTransition_b8b8d"), "Start", "Zombie_ladder_ladderwalk", SubResource("AnimationNodeStateMachineTransition_4ms44"), "Zombie_ladder_idle", "Zombie_ladder_ladderwalk", SubResource("AnimationNodeStateMachineTransition_bcikk"), "Zombie_ladder_ladderwalk", "BlendTree_laddereat", SubResource("AnimationNodeStateMachineTransition_4hs72"), "BlendTree_laddereat", "Zombie_ladder_ladderwalk", SubResource("AnimationNodeStateMachineTransition_kwxxo"), "Zombie_ladder_ladderwalk", "Zombie_ladder_placeladder", SubResource("AnimationNodeStateMachineTransition_wi3j7"), "BlendTree_laddereat", "Zombie_ladder_placeladder", SubResource("AnimationNodeStateMachineTransition_vv6a1"), "Zombie_ladder_placeladder", "Zombie_ladder_walk", SubResource("AnimationNodeStateMachineTransition_6aq3c"), "Zombie_ladder_placeladder", "BlendTree_eat", SubResource("AnimationNodeStateMachineTransition_rtcis"), "Zombie_ladder_walk", "BlendTree_eat", SubResource("AnimationNodeStateMachineTransition_dkkww"), "BlendTree_eat", "Zombie_ladder_walk", SubResource("AnimationNodeStateMachineTransition_fntal"), "Zombie_ladder_walk", "Zombie_ladder_death", SubResource("AnimationNodeStateMachineTransition_gg10s"), "BlendTree_eat", "Zombie_ladder_death", SubResource("AnimationNodeStateMachineTransition_ktdip"), "Zombie_ladder_ladderwalk", "Zombie_ladder_walk", SubResource("AnimationNodeStateMachineTransition_4iwad"), "BlendTree_laddereat", "BlendTree_eat", SubResource("AnimationNodeStateMachineTransition_lxu84"), "Zombie_ladder_ladderwalk", "Zombie_ladder_death", SubResource("AnimationNodeStateMachineTransition_c2olq"), "Zombie_ladder_placeladder", "Zombie_ladder_death", SubResource("AnimationNodeStateMachineTransition_p85rf"), "BlendTree_laddereat", "Zombie_ladder_death", SubResource("AnimationNodeStateMachineTransition_s8l78"), "Zombie_ladder_placeladder", "BlendTree_laddereat", SubResource("AnimationNodeStateMachineTransition_uplyf"), "Zombie_ladder_placeladder", "Zombie_ladder_ladderwalk", SubResource("AnimationNodeStateMachineTransition_qnelm")]
-graph_offset = Vector2(104, 116)
+transitions = ["Start", "Zombie_ladder_idle", SubResource("AnimationNodeStateMachineTransition_b8b8d"), "Start", "BlendTree_ladderwalk", SubResource("AnimationNodeStateMachineTransition_4ms44"), "Zombie_ladder_idle", "BlendTree_ladderwalk", SubResource("AnimationNodeStateMachineTransition_bcikk"), "BlendTree_ladderwalk", "BlendTree_laddereat", SubResource("AnimationNodeStateMachineTransition_4hs72"), "BlendTree_laddereat", "BlendTree_ladderwalk", SubResource("AnimationNodeStateMachineTransition_kwxxo"), "BlendTree_ladderwalk", "Zombie_ladder_placeladder", SubResource("AnimationNodeStateMachineTransition_wi3j7"), "BlendTree_laddereat", "Zombie_ladder_placeladder", SubResource("AnimationNodeStateMachineTransition_vv6a1"), "Zombie_ladder_placeladder", "Zombie_ladder_walk", SubResource("AnimationNodeStateMachineTransition_6aq3c"), "Zombie_ladder_placeladder", "BlendTree_eat", SubResource("AnimationNodeStateMachineTransition_rtcis"), "Zombie_ladder_walk", "BlendTree_eat", SubResource("AnimationNodeStateMachineTransition_dkkww"), "BlendTree_eat", "Zombie_ladder_walk", SubResource("AnimationNodeStateMachineTransition_fntal"), "Zombie_ladder_walk", "Zombie_ladder_death", SubResource("AnimationNodeStateMachineTransition_gg10s"), "BlendTree_eat", "Zombie_ladder_death", SubResource("AnimationNodeStateMachineTransition_ktdip"), "BlendTree_ladderwalk", "Zombie_ladder_walk", SubResource("AnimationNodeStateMachineTransition_4iwad"), "BlendTree_laddereat", "BlendTree_eat", SubResource("AnimationNodeStateMachineTransition_lxu84"), "BlendTree_ladderwalk", "Zombie_ladder_death", SubResource("AnimationNodeStateMachineTransition_c2olq"), "Zombie_ladder_placeladder", "Zombie_ladder_death", SubResource("AnimationNodeStateMachineTransition_p85rf"), "BlendTree_laddereat", "Zombie_ladder_death", SubResource("AnimationNodeStateMachineTransition_s8l78"), "Zombie_ladder_placeladder", "BlendTree_laddereat", SubResource("AnimationNodeStateMachineTransition_uplyf"), "Zombie_ladder_placeladder", "BlendTree_ladderwalk", SubResource("AnimationNodeStateMachineTransition_qnelm")]
+graph_offset = Vector2(59, -62)
 
 [sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_ceiw1"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_asnt0"]
-graph_offset = Vector2(-219, 58)
+graph_offset = Vector2(-219, 54)
 nodes/output/position = Vector2(380, 140)
 nodes/StateMachine/node = SubResource("AnimationNodeStateMachine_emrw6")
 nodes/StateMachine/position = Vector2(-100, 140)
@@ -1313,149 +1326,160 @@ iron_node = NodePath("Body/BodyCorrect/IronNode")
 position = Vector2(-59, -120)
 
 [node name="_ground" type="Sprite2D" parent="Body/BodyCorrect" index="0"]
-position = Vector2(-31.307, 70.8)
+position = Vector2(12.623737, 70.8)
 centered = false
 
 [node name="Zombie_ladder_innererarm_hand" type="Sprite2D" parent="Body/BodyCorrect" index="1"]
-visible = false
+position = Vector2(30.987833, 74.62819)
+rotation = -0.08136487
+scale = Vector2(0.7935801, 0.7935801)
+texture = ExtResource("3_lxu84")
 centered = false
 
 [node name="Zombie_ladder_innerleg_foot" type="Sprite2D" parent="Body/BodyCorrect" index="2"]
-position = Vector2(35.58905, 109.210945)
-rotation = 0.12645346
-scale = Vector2(0.749, 0.749)
+position = Vector2(48.99451, 121.20386)
+rotation = -1.2243437
+scale = Vector2(0.7444199, 0.7444199)
 texture = ExtResource("3_5x3ws")
 centered = false
 
 [node name="Zombie_ladder_innerarm_hand" type="Sprite2D" parent="Body/BodyCorrect" index="3"]
 visible = false
+position = Vector2(3.3, 130.7)
+rotation = -1.5324
+scale = Vector2(0.789, 0.789)
+texture = ExtResource("3_lxu84")
 centered = false
 
 [node name="Zombie_ladder_innerarm_lower" type="Sprite2D" parent="Body/BodyCorrect" index="4"]
-position = Vector2(22.332848, 61.0343)
-rotation = 1.1660417
-scale = Vector2(0.849, 0.849)
+position = Vector2(29.545845, 60.12819)
+rotation = -0.060700487
+scale = Vector2(0.842, 0.842)
 texture = ExtResource("4_sq6ys")
 centered = false
 
 [node name="Zombie_ladder_innerleg_upper" type="Sprite2D" parent="Body/BodyCorrect" index="5"]
-position = Vector2(40.0219, 82.745255)
-rotation = 6.0442405
-scale = Vector2(0.849, 0.849)
+position = Vector2(42.523735, 66.22211)
+rotation = 6.4265604
+scale = Vector2(0.84, 1.262)
+skew = -0.001012656
 texture = ExtResource("5_ouotv")
 centered = false
 
 [node name="Zombie_ladder_innerleg_lower" type="Sprite2D" parent="Body/BodyCorrect" index="6"]
-position = Vector2(33.98905, 96.5781)
-scale = Vector2(0.85, 0.85)
+position = Vector2(35.490654, 120.15801)
+rotation = -1.384755
+scale = Vector2(0.843, 0.843)
 texture = ExtResource("6_jarv0")
 centered = false
 
 [node name="Zombie_ladder_outerleg_foot" type="Sprite2D" parent="Body/BodyCorrect" index="7"]
-position = Vector2(50.4, 117.18905)
-rotation = 6.179425
-scale = Vector2(0.849, 0.849)
+position = Vector2(43.83976, 117.50994)
+rotation = 6.1906176
+scale = Vector2(0.845, 0.845)
 texture = ExtResource("7_qwrc3")
 centered = false
 
 [node name="Zombie_ladder_outerleg_lower" type="Sprite2D" parent="Body/BodyCorrect" index="8"]
-position = Vector2(58.332848, 99.4781)
-rotation = 6.0442405
-scale = Vector2(0.699, 0.699)
+position = Vector2(49.37181, 100.035904)
+rotation = 5.936078
+scale = Vector2(0.69441986, 0.7077626)
 texture = ExtResource("8_lcajd")
 centered = false
 
 [node name="Zombie_ladder_outerleg_upper" type="Sprite2D" parent="Body/BodyCorrect" index="9"]
-position = Vector2(60.389053, 79.532845)
-rotation = 0.13501449
-scale = Vector2(0.703, 0.7544525)
-skew = 0.039951503
+position = Vector2(52.858013, 77.59392)
+rotation = 0.11177866
+scale = Vector2(0.699, 0.76458013)
+skew = 0.05162717
 texture = ExtResource("9_e6t4g")
 centered = false
 
 [node name="Zombie_ladder_body2" type="Sprite2D" parent="Body/BodyCorrect" index="10"]
-position = Vector2(45.5, 68.27811)
-scale = Vector2(0.85, 0.85)
+position = Vector2(47.98012, 58.46187)
+rotation = 0.47414154
+scale = Vector2(0.84841985, 0.8494199)
+skew = -0.0551175
 texture = ExtResource("10_b8b8d")
 centered = false
 
 [node name="Zombie_ladder_hammer" type="Sprite2D" parent="Body/BodyCorrect" index="11"]
-position = Vector2(61.8781, 70.8)
-rotation = 0.14237773
-scale = Vector2(0.799, 0.799)
+position = Vector2(61.077892, 67.83205)
+rotation = 0.4052632
+scale = Vector2(0.797, 0.797)
 texture = ExtResource("11_4ms44")
 centered = false
 
 [node name="Zombie_ladder_innerarm_upper" type="Sprite2D" parent="Body/BodyCorrect" index="12"]
-position = Vector2(21.065695, 47.834305)
-rotation = 0.2646655
-scale = Vector2(0.849, 0.849)
+position = Vector2(27.371809, 40.376263)
+rotation = -0.10960882
+scale = Vector2(0.8444199, 0.8444199)
 texture = ExtResource("12_bcikk")
 centered = false
 
 [node name="Zombie_ladder_body" type="Sprite2D" parent="Body/BodyCorrect" index="13"]
-position = Vector2(25.332848, 37.46715)
-rotation = 6.2050323
-scale = Vector2(0.85, 0.85)
+position = Vector2(38.1497, 26.102226)
+rotation = 6.5110116
+scale = Vector2(0.84841985, 0.84841985)
 texture = ExtResource("13_4hs72")
 centered = false
 
 [node name="Head" type="Node2D" parent="Body/BodyCorrect" index="14"]
 
 [node name="Anim_head2" type="Sprite2D" parent="Body/BodyCorrect/Head" index="0"]
-position = Vector2(12.821898, 48.212406)
-rotation = 6.047922
-scale = Vector2(0.849, 0.9194671)
+position = Vector2(25.29169, 27.24644)
+rotation = 6.5111504
+scale = Vector2(0.847, 0.847)
 texture = ExtResource("14_kwxxo")
 centered = false
 
 [node name="Anim_head1" type="Sprite2D" parent="Body/BodyCorrect/Head" index="1"]
-position = Vector2(-4.201457, 15.790507)
-rotation = 6.047922
-scale = Vector2(0.849, 0.849)
+position = Vector2(29.313202, -10.611571)
+rotation = 6.6245947
+scale = Vector2(0.84741986, 0.84741986)
 texture = ExtResource("15_wi3j7")
 centered = false
 
 [node name="Ladder" type="Node2D" parent="Body/BodyCorrect" index="15"]
 
 [node name="Zombie_ladder_1" type="Sprite2D" parent="Body/BodyCorrect/Ladder" index="0"]
-position = Vector2(-16.101458, 37.46861)
-rotation = -0.11407049
-scale = Vector2(0.849, 0.849)
+visible = false
+position = Vector2(-10.3, 30.4)
+scale = Vector2(0.85, 0.85)
 texture = ExtResource("16_vv6a1")
 centered = false
 
 [node name="OuterArmHand" type="Node2D" parent="Body/BodyCorrect" index="16"]
 
 [node name="Zombie_outerarm_hand" type="Sprite2D" parent="Body/BodyCorrect/OuterArmHand" index="0"]
-position = Vector2(11.1, 76.62335)
-rotation = 5.9055667
-scale = Vector2(0.799, 0.799)
-texture = ExtResource("17_6vlgr")
+position = Vector2(31.764093, 79.01825)
+rotation = 6.37425
+scale = Vector2(0.795, 0.795)
+texture = ExtResource("18_c2olq")
 centered = false
 
 [node name="OuterArmLower" type="Node2D" parent="Body/BodyCorrect" index="17"]
 
 [node name="Zombie_outerarm_lower" type="Sprite2D" parent="Body/BodyCorrect/OuterArmLower" index="0"]
-position = Vector2(45.23285, 59.4781)
-rotation = 0.9692052
-scale = Vector2(0.875562, 0.90354747)
-skew = 0.019797698
+position = Vector2(43.693916, 57.92819)
+rotation = 0.40382645
+scale = Vector2(0.84883976, 0.9194199)
+skew = -0.030403702
 texture = ExtResource("18_rtcis")
 centered = false
 
 [node name="Zombie_ladder_outerarm_upper" type="Sprite2D" parent="Body/BodyCorrect" index="18"]
-position = Vector2(45.065697, 44.3781)
-rotation = 0.14270967
-scale = Vector2(0.8518905, 0.849)
-skew = -0.065176174
+position = Vector2(49.62982, 39.20608)
+rotation = 0.08537635
+scale = Vector2(0.848, 0.848)
 texture = ExtResource("19_dkkww")
 centered = false
 
 [node name="Zombie_ladder_innerarm_hand2" type="Sprite2D" parent="Body/BodyCorrect" index="19"]
-position = Vector2(-6.389051, 72.66861)
-rotation = 5.9055667
-scale = Vector2(0.799, 0.799)
+visible = false
+position = Vector2(-4.6, 66.3)
+rotation = 6.02139
+scale = Vector2(0.8, 0.8)
 texture = ExtResource("20_fntal")
 centered = false
 
@@ -1606,6 +1630,7 @@ deterministic = false
 tree_root = SubResource("AnimationNodeBlendTree_asnt0")
 advance_expression_base_node = NodePath("..")
 anim_player = NodePath("../AnimationPlayer")
-parameters/StateMachine/BlendTree_eat/TimeScale/scale = 2.0
-parameters/StateMachine/BlendTree_laddereat/TimeScale/scale = 2.0
-parameters/TimeScale/scale = 1.0
+parameters/StateMachine/BlendTree_eat/TimeScale/scale = 1.0
+parameters/StateMachine/BlendTree_laddereat/TimeScale/scale = 1.0
+parameters/StateMachine/BlendTree_ladderwalk/TimeScale/scale = 1.5
+parameters/TimeScale/scale = 1.2999999999999972

@@ -16,6 +16,7 @@ class_name BombComponentJackbox
 ## 小丑出生后爆炸时间
 var wait_time_bomb :float= 0.0
 
+
 ## 小丑触发爆炸信号
 signal signal_trigger_bomb
 
@@ -53,9 +54,16 @@ func _start_bomb_fx():
 func _bomb_all_enemy():
 	var areas = area_2d_bomb.get_overlapping_areas()
 	for area in areas:
-		var character:Character000Base = area.owner
-		## 角色死亡直接消失
-		character.character_death_disappear()
+		if area.owner is Character000Base:
+			var character:Character000Base = area.owner
+			if character.lane >= owner.lane -1 and character.lane <= owner.lane + 1:
+				## 角色死亡直接消失
+				character.character_death_disappear()
+		elif area.owner is ScaryPot:
+			var pot:ScaryPot = area.owner
+			if pot.lane >= owner.lane -1 and pot.lane <= owner.lane + 1:
+				pot.open_pot_be_bomb()
+
 
 ## 禁用组件
 func disable_component(is_enable_factor:E_IsEnableFactor):

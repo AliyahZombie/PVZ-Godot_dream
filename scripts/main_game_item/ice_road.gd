@@ -23,12 +23,10 @@ var left_x:float
 
 ## 冰道消失信号
 signal signal_ice_road_disappear
-## 冰道覆盖新格子更新信号(本次覆盖的格子)
-signal signal_ice_road_update(curr_i_plant_cell:int)
 
 ## 冰道初始化,生产冰道的节点调用
-func ice_road_init(lane:int):
-	self.lane = lane
+func ice_road_init(curr_lane:int):
+	self.lane = curr_lane
 	self.curr_lane_plant_cells = Global.main_game.plant_cell_manager.all_plant_cells[lane]
 	for plant_cell:PlantCell in self.curr_lane_plant_cells:
 		x_plant_cell_target.append(plant_cell.global_position.x + plant_cell.size.x*2/3)

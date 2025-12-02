@@ -33,4 +33,4 @@ func _on_area_entered(area: Area2D) -> void:
 				animation_player.play("LawnMower_normal")
 				SoundManager.play_other_SFX("lawnmower")
 
-			zombie.be_mowered_run()
+			zombie.be_mowered_run(self)

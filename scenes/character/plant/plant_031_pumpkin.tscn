@@ -12,10 +12,10 @@
 [ext_resource type="Texture2D" uid="uid://bo1033fu5244l" path="res://assets/reanim/Pumpkin_damage3.png" id="9_3u6d4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_btwas"]
-size = Vector2(50, 80)
+size = Vector2(60, 80)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_btwas"]
-radius = 25.0
+radius = 30.0
 height = 80.0
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_6x5pj"]
@@ -66,15 +66,14 @@ position = Vector2(-43, -66)
 centered = false
 
 [node name="Pumpkin_back" type="Sprite2D" parent="Body/BodyCorrect" index="1"]
-z_index = -1
-position = Vector2(-7.435854, 14.328944)
-scale = Vector2(0.81950325, 0.7739244)
+position = Vector2(-7.663828, 14.936874)
+scale = Vector2(0.82482266, 0.7665391)
 texture = ExtResource("2_ua2hr")
 centered = false
 
 [node name="Pumpkin_front" type="Sprite2D" parent="Body/BodyCorrect" index="2"]
-position = Vector2(-7.857236, 14.328944)
-scale = Vector2(0.81950325, 0.7739244)
+position = Vector2(-8.118437, 14.936874)
+scale = Vector2(0.82482266, 0.7665391)
 texture = ExtResource("3_ep6lu")
 centered = false
 

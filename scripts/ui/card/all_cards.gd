@@ -25,6 +25,7 @@ func _ready() -> void:
 	if not Engine.is_editor_hint():
 		visible = false
 	var plant_i = -1
+	all_plant_card_prefabs.clear()
 	for plant_cards_parent_node in all_plant_cards_parent_node_root:
 		for i in range(plant_cards_parent_node.get_children().size()):
 			var card:Card = plant_cards_parent_node.get_children()[i]
@@ -41,6 +42,7 @@ func _ready() -> void:
 				plant_card_ids[card.card_plant_type] = plant_i
 
 	var zombie_i = -1
+	all_zombie_card_prefabs.clear()
 	for zombie_cards_parent_node in all_zombie_cards_parent_node_root:
 		for i in range(zombie_cards_parent_node.get_children().size()):
 			var card:Card = zombie_cards_parent_node.get_children()[i]

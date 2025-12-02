@@ -7,8 +7,6 @@ var real_value: float = 0.0
 ## 追赶进度值 (0-100)
 var chase_value: float = 0.
 
-## 轮次label
-@onready var round_label: Label = $RoundLabel
 
 ## 进度条
 @onready var texture_progress_bar: TextureProgressBar = $TextureProgressBar
@@ -74,10 +72,6 @@ func start_next_game_flag_progress_bar_update():
 	for curr_flag:FlagProgressBarFlag in flag_arr:
 		curr_flag.down_flag()
 
-## 设置轮次
-func set_round(curr_round:int):
-	round_label.text = "完成" + str(curr_round) + "轮"
-	round_label.visible = true
 
 ## 设置真实进度
 func set_progress(value: float, flag_i:int = -1):

@@ -39,7 +39,7 @@ func ready_norm_signal_connect():
 
 
 ## 血量变化判断是否丢小鬼
-func jugde_throw_imp_form_hp_change(curr_hp:int, is_drop:=true):
+func jugde_throw_imp_form_hp_change(curr_hp:int, _is_drop:=true):
 	if not is_throw_once and global_position.x>MinXThrowGargantuar and curr_hp <= 1500:
 		is_throw_once = true
 		is_throw = true
@@ -56,7 +56,8 @@ func create_imp():
 	var zombie_init_para:Dictionary = {
 		Zombie000Base.E_ZInitAttr.CharacterInitType:Character000Base.E_CharacterInitType.IsNorm,
 		Zombie000Base.E_ZInitAttr.Lane:lane,
-
+		Zombie000Base.E_ZInitAttr.IsMiniZombie: is_mini_zombie,
+		Zombie000Base.E_ZInitAttr.IsPotZombie: is_pot_zombie,
 	}
 	Global.main_game.zombie_manager.create_norm_zombie(
 		Global.ZombieType.Z025Imp,

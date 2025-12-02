@@ -44,7 +44,7 @@ func shadow_fixed():
 	plant_cell_shadow_end()
 
 ## 进入该页面花园时若有植物初始化该格子
-func init_curr_plant_cell(curr_plant_cell_data:Dictionary, bg_type:=-1, page:=-1):
+func init_curr_plant_cell(curr_plant_cell_data:Dictionary, bg_type:GardenManager.E_GardenBgType=GardenManager.E_GardenBgType.GreenHouse, page:=-1):
 	## 当前背景页初始化当前植物格子
 	curr_garden_bg_type = bg_type
 	curr_bg_page = page

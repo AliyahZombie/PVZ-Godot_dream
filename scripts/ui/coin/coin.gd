@@ -37,9 +37,9 @@ func _ready():
 
 
 func fade_and_delete():
-	var tween = create_tween()
-	tween.tween_property(self, "modulate:a", 0.0, 1.0)  # 1秒内 alpha 从当前变到 0
-	tween.tween_callback(Callable(self, "queue_free"))  # 动画完成后删除自身
+	var fade_tween = create_tween()
+	fade_tween.tween_property(self, "modulate:a", 0.0, 1.0)  # 1秒内 alpha 从当前变到 0
+	fade_tween.tween_callback(Callable(self, "queue_free"))  # 动画完成后删除自身
 
 
 func launch(relative_target: Vector2):
@@ -90,16 +90,16 @@ func _on_button_pressed() -> void:
 		coin_target_position = Global.coin_value_label.marker_2d_coin_target.global_position
 
 
-	var tween:Tween = create_tween()
-	tween.tween_property(self, "global_position", coin_target_position, 0.5)
-	await tween.finished
+	var click_tween:Tween = create_tween()
+	click_tween.tween_property(self, "global_position", coin_target_position, 0.5)
+	await click_tween.finished
 	Global.coin_value += coin_value
-	tween = create_tween()
-	tween.set_parallel()
-	tween.tween_property(self, "modulate:a", 0, 0.5)
-	tween.tween_property(self, "scale", Vector2(0.5,0.5), 0.5)
+	click_tween = create_tween()
+	click_tween.set_parallel()
+	click_tween.tween_property(self, "modulate:a", 0, 0.5)
+	click_tween.tween_property(self, "scale", Vector2(0.5,0.5), 0.5)
 
-	await tween.finished
+	await click_tween.finished
 	queue_free()
 
 
@@ -111,14 +111,14 @@ func be_attract_gold_magnet(target_global_pos:Vector2):
 	##打断抛物线
 	_on_interrupt_triggered()
 
-	var tween:Tween = create_tween()
-	tween.tween_property(self, "global_position", target_global_pos, 0.5)
-	await tween.finished
+	var be_attract_tween:Tween = create_tween()
+	be_attract_tween.tween_property(self, "global_position", target_global_pos, 0.5)
+	await be_attract_tween.finished
 	Global.coin_value += coin_value
-	tween = create_tween()
-	tween.set_parallel()
-	tween.tween_property(self, "modulate:a", 0, 0.5)
-	tween.tween_property(self, "scale", Vector2(0.5,0.5), 0.5)
+	be_attract_tween = create_tween()
+	be_attract_tween.set_parallel()
+	be_attract_tween.tween_property(self, "modulate:a", 0, 0.5)
+	be_attract_tween.tween_property(self, "scale", Vector2(0.5,0.5), 0.5)
 
-	await tween.finished
+	await be_attract_tween.finished
 	queue_free()

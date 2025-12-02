@@ -2,6 +2,13 @@ extends Node
 ## 僵尸波次管理器
 class_name ZombieWaveManager
 
+#region 波次管理器参数
+## 是否有墓碑,即墓碑是否生成僵尸
+var is_have_tombston := false
+## 一轮游戏最大波次
+var max_wave_one_round :int
+#endregion
+
 ## 波次刷新管理器
 @onready var zombie_wave_refresh_manager: ZombieWaveRefreshManager = $ZombieWaveRefreshManager
 ## 波次创建管理器
@@ -25,19 +32,14 @@ enum E_WaveType{
 	Final,		## 最后一波
 }
 var curr_wave_type:E_WaveType
-## 最大波次
+## 最大波次(多轮游戏时更新最大波次)
 var max_wave :int
-## 一轮游戏最大波次
-var max_wave_one_round :int
-
 ## 当前波次
 var curr_wave := -1
 ## 每波进度条所占大小
 var progress_bar_segment_every_wave:float
 ## 每段根据当前波次时间，每秒多长
 var progress_bar_segment_mini_every_sec:float
-## 是否有墓碑,即墓碑是否生成僵尸
-var is_have_tombston := false
 
 ## 波次刷新信号,给zombie_manager,删除魅惑僵尸，更新是否为最后一波
 signal signal_wave_refresh(is_end_wave:bool)
@@ -51,22 +53,27 @@ func _ready() -> void:
 
 ## 初始化波次管理器
 func init_zombie_wave_manager(game_para:ResourceLevelData):
-	self.is_have_tombston = game_para.is_have_tombston
-	self.max_wave = game_para.curr_max_wave
-	self.max_wave_one_round = game_para.max_wave
-	self.curr_wave = game_para.curr_wave
+	is_have_tombston = game_para.is_have_tombston
+	max_wave_one_round = game_para.max_wave
+	## 如果存在存档
+	if game_para.save_game_data_main_game:
+		curr_wave = game_para.save_game_data_main_game.curr_wave
+		max_wave = game_para.save_game_data_main_game.curr_max_wave
+	else:
+		curr_wave = -1
+		max_wave = game_para.max_wave
+
 	flag_progress_bar.init_flag_from_wave(max_wave_one_round)
 	progress_bar_segment_every_wave = 100.0 / (max_wave_one_round - 1)
 
-	zombie_wave_refresh_manager.init_zombie_wave_refresh_manager()
 	zombie_wave_create_manager.init_zombie_wave_create_manager(game_para)
 
 ## 多轮游戏开始下一轮僵尸波次管理器更新数据
-func start_next_game_zombie_wave_mananger_update(new_zombie_refresh_types:Array[Global.ZombieType], is_bungi:= false):
+func start_next_game_zombie_wave_mananger_update():
 	max_wave += max_wave_one_round
 	flag_progress_bar.start_next_game_flag_progress_bar_update()
 	flag_progress_bar.visible = false
-	zombie_wave_create_manager.update_zombie_refresh_types(new_zombie_refresh_types, is_bungi)
+	zombie_wave_create_manager.update_zombie_refresh_types()
 
 ## 计算当前进度并更新进度条
 func set_progress_bar(curr_flag:int=-1):
@@ -78,9 +85,6 @@ func start_first_wave():
 	start_next_wave()
 	every_wave_progress_timer.start()
 	flag_progress_bar.visible = true
-	if curr_wave >= max_wave_one_round:
-		@warning_ignore("integer_division")
-		flag_progress_bar.set_round(curr_wave/max_wave_one_round)
 
 ## 开始刷新下一波,发射刷新下一波信号
 func start_next_wave() -> void:

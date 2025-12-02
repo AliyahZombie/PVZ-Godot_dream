@@ -8,20 +8,13 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_66flf"]
 
-[node name="PlantCell" type="Control" node_paths=PackedStringArray("plant_in_cell")]
+[node name="PlantCell" type="Control"]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 76.0
 offset_bottom = 95.0
 mouse_filter = 2
 script = ExtResource("1_66flf")
-plant_cell_type = null
-row_col = null
-plant_in_cell = {}
-can_common_plant = null
-curr_special_state_plant = null
-can_common_zombie = null
-curr_special_state_zombie = null
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 1

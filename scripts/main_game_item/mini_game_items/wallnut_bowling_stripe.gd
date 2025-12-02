@@ -4,13 +4,19 @@ class_name WallnutBowlingStripe
 var plant_cell_manager:PlantCellManager
 
 func init_item(plant_cell_col_j:int=2, plant_cell_can_use:Dictionary = {}):
-	## 等待一帧植物格子位置被容器节点修改完成后
-	await get_tree().process_frame
-	var main_game: MainGameManager = get_tree().current_scene
-	plant_cell_manager = main_game.plant_cell_manager
 	## 确定红线位置
 	var target_plant_cell:PlantCell= Global.main_game.plant_cell_manager.all_plant_cells[0][plant_cell_col_j]
-	global_position = target_plant_cell.global_position + Vector2(target_plant_cell.size.x - 11, 0)
+	var target_global_pos_x:float = target_plant_cell.global_position.x
+	var target_global_pos_y:float = target_plant_cell.global_position.y
+	print("111", target_global_pos_y)
+	## 如果存在屋顶斜面
+	if is_instance_valid(Global.main_game.main_game_slope):
+		scale.y = 0.88
+		## 后面一格，屋顶时确定y
+		if Global.main_game.plant_cell_manager.all_plant_cells[0].get(plant_cell_col_j + 1):
+			target_global_pos_y = Global.main_game.plant_cell_manager.all_plant_cells[0][plant_cell_col_j + 1].global_position.y
+
+	global_position = Vector2(target_global_pos_x + target_plant_cell.size.x - 11, target_global_pos_y)
 
 
 	for plant_cells_row in Global.main_game.plant_cell_manager.all_plant_cells:

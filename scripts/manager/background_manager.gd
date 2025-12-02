@@ -28,6 +28,9 @@ func init_background(game_para:ResourceLevelData):
 	var curr_bg_texture: Texture2D = game_para.GameBgTextureMap[game_para.game_BG]
 	background.texture = curr_bg_texture
 	home.init_home(game_para.game_BG)
+	if not game_para.is_zombie_can_home:
+		print("僵尸无法进房")
+		home.disable_home()
 	match game_para.game_BG:
 		ResourceLevelData.GameBg.Pool, ResourceLevelData.GameBg.Fog:
 			pool = background.get_node(^"Pool")

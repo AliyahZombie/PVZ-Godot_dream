@@ -1,6 +1,8 @@
 extends Node
 class_name TombStoneManager
 
+@onready var plant_cell_manager: PlantCellManager = %PlantCellManager
+
 ## 是否有墓碑(二维)
 var all_is_tombstone:Array[Array]
 ## 墓碑数量
@@ -13,9 +15,8 @@ func _ready() -> void:
 ## 初始化墓碑管理器
 func init_tomb_stone_manager(_game_para:ResourceLevelData):
 	# 植物种植区域信号，更新植物位置列号,更新墓碑信息
-	for plant_cells_row_i in range(Global.main_game.plant_cell_manager.all_plant_cells.size()):
-
-		var plant_cells_row = Global.main_game.plant_cell_manager.all_plant_cells[plant_cells_row_i]
+	for plant_cells_row_i in range(plant_cell_manager.all_plant_cells.size()):
+		var plant_cells_row = plant_cell_manager.all_plant_cells[plant_cells_row_i]
 		var is_tombstone_row := []
 		for plant_cells_col_j in range(plant_cells_row.size() - 1, -1, -1):
 			var plant_cell:PlantCell = plant_cells_row[plant_cells_col_j]
@@ -27,7 +28,7 @@ func init_tomb_stone_manager(_game_para:ResourceLevelData):
 
 #region 墓碑相关
 ## 生成待选位置,没有墓碑的行和列
-func _candidates_position(rows:int, cols_start:int, cols_end:int=Global.main_game.plant_cell_manager.row_col.y) -> Array[Vector2i]:
+func _candidates_position(rows:int, cols_start:int, cols_end:int=plant_cell_manager.row_col.y) -> Array[Vector2i]:
 	# 构建可选位置列表
 	var candidates: Array[Vector2i]= []
 	for r in range(rows):
@@ -42,8 +43,8 @@ func _candidates_position(rows:int, cols_start:int, cols_end:int=Global.main_gam
 
 ## 随机生成墓碑的位置
 func _reandom_tombstone_pos(new_num:int) ->  Array[Vector2i]:
-	var rows = Global.main_game.plant_cell_manager.row_col.x
-	var cols = Global.main_game.plant_cell_manager.row_col.y
+	var rows = plant_cell_manager.row_col.x
+	var cols = plant_cell_manager.row_col.y
 
 	# 如果请求的数量超过所有格子总数，就返回所有格子
 	if new_num + tombstone_num >= rows * cols:
@@ -106,7 +107,7 @@ func create_tombstone(new_num:int):
 
 	print("墓碑生成位置", selected_positions)
 	for pos in selected_positions:
-		var plant_cell:PlantCell = Global.main_game.plant_cell_manager.all_plant_cells[pos.x][pos.y]
+		var plant_cell:PlantCell = plant_cell_manager.all_plant_cells[pos.x][pos.y]
 
 		_create_one_tombstone(plant_cell, pos)
 
@@ -127,7 +128,7 @@ func load_game_data_tomb_stone_manager(save_game_data_tomb_stome_manager:Diction
 		for j in range(new_all_is_tombstone[i].size()):
 			var pos:Vector2i = Vector2i(i,j)
 			if new_all_is_tombstone[i][j]:
-				var plant_cell:PlantCell = Global.main_game.plant_cell_manager.all_plant_cells[pos.x][pos.y]
+				var plant_cell:PlantCell = plant_cell_manager.all_plant_cells[pos.x][pos.y]
 				_create_one_tombstone(plant_cell, pos)
 
 #endregion

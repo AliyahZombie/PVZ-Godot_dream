@@ -1,6 +1,7 @@
 extends Character000Base
 class_name Zombie000Base
 
+
 @onready var attack_component: AttackComponentBase = %AttackComponent
 @onready var hp_stage_change_component: HpStageChangeComponent = %HpStageChangeComponent
 @onready var charred_component: CharredComponent = %CharredComponent
@@ -16,6 +17,11 @@ class_name Zombie000Base
 @export var is_ignore_ladder:=false
 ## 是否为小僵尸大麻烦的小僵尸(速度翻倍,大小,血量减半)
 var is_mini_zombie:= false
+## 是否为罐子创建的僵尸
+var is_pot_zombie:=false
+## 是否为我是僵尸模式的僵尸
+var is_zombie_mode:=false
+
 @export_subgroup("僵尸铁器")
 ## 僵尸铁器类型
 @export var iron_type:Global.IronType = Global.IronType.Null
@@ -126,41 +132,24 @@ enum E_ZInitAttr{
 	CurrZombieRowType,	## 僵尸所在行属性（水、陆地）
 	CurrWave,			## 僵尸波次
 	IsMiniZombie,		## 是否为小僵尸大麻烦的小僵尸
+	IsPotZombie,		## 是否为罐子生成的僵尸，小丑瞬爆
+	IsZombieMode,		## 是否为我是僵尸模式的僵尸，气球落地
 }
 
 ## 修改初始化状态，在添加到场景树之前调用
 func init_zombie(zombie_init_para:Dictionary):
-	self.is_mini_zombie = zombie_init_para[E_ZInitAttr.IsMiniZombie]
 	self.character_init_type = zombie_init_para.get(E_ZInitAttr.CharacterInitType, E_CharacterInitType.IsNorm)
-	self.lane = zombie_init_para.get(E_ZInitAttr.Lane, -1)
-	if zombie_init_para.has(E_ZInitAttr.CurrZombieRowType):
-		self.curr_zombie_row_type = zombie_init_para[E_ZInitAttr.CurrZombieRowType]
-	else:
-		self.curr_zombie_row_type = Global.main_game.zombie_manager.all_zombie_rows[lane].zombie_row_type
-
-	self.curr_wave = zombie_init_para.get(E_ZInitAttr.CurrWave, -1)
-
-	## 两栖类僵尸在水路时变化
-	if Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieRowType) == Global.ZombieRowType.Both:
-		if body_change_on_pool != null:
-			## 水路时body变化
-			if curr_zombie_row_type == Global.ZombieRowType.Pool:
-				for sprite_path in body_change_on_pool.sprite_appear:
-					var sprite = get_node(sprite_path)
-					sprite.visible = true
-
-				for sprite_path in body_change_on_pool.sprite_disappear:
-					var sprite = get_node(sprite_path)
-					sprite.visible = false
+	match self.character_init_type:
+		E_CharacterInitType.IsNorm:
+			self.is_mini_zombie = zombie_init_para.get(E_ZInitAttr.IsMiniZombie, false)
+			self.is_pot_zombie = zombie_init_para.get(E_ZInitAttr.IsPotZombie, false)
+			self.is_zombie_mode = zombie_init_para.get(E_ZInitAttr.IsZombieMode, false)
+			self.lane = zombie_init_para.get(E_ZInitAttr.Lane, -1)
+			if zombie_init_para.has(E_ZInitAttr.CurrZombieRowType):
+				self.curr_zombie_row_type = zombie_init_para[E_ZInitAttr.CurrZombieRowType]
 			else:
-
-				for sprite_path in body_change_on_pool.sprite_appear:
-					var sprite = get_node(sprite_path)
-					sprite.visible = false
-
-				for sprite_path in body_change_on_pool.sprite_disappear:
-					var sprite = get_node(sprite_path)
-					sprite.visible = true
+				self.curr_zombie_row_type = Global.main_game.zombie_manager.all_zombie_rows[lane].zombie_row_type
+			self.curr_wave = zombie_init_para.get(E_ZInitAttr.CurrWave, -1)
 
 
 func _ready() -> void:
@@ -198,6 +187,30 @@ func ready_norm():
 	if attack_component is AttackComponentZombieNorm:
 		## 攻击组件是否攻击梯子下僵尸
 		attack_component.init_attack_component(is_ignore_ladder)
+
+	## 两栖类僵尸在水路时变化
+	if Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieRowType) == Global.ZombieRowType.Both:
+		if body_change_on_pool != null:
+			## 水路时body变化
+			if curr_zombie_row_type == Global.ZombieRowType.Pool:
+				for sprite_path in body_change_on_pool.sprite_appear:
+					var sprite = get_node(sprite_path)
+					sprite.visible = true
+
+				for sprite_path in body_change_on_pool.sprite_disappear:
+					var sprite = get_node(sprite_path)
+					sprite.visible = false
+			else:
+
+				for sprite_path in body_change_on_pool.sprite_appear:
+					var sprite = get_node(sprite_path)
+					sprite.visible = false
+
+				for sprite_path in body_change_on_pool.sprite_disappear:
+					var sprite = get_node(sprite_path)
+					sprite.visible = true
+
+
 
 ## 初始化正常出战角色信号连接
 func ready_norm_signal_connect():
@@ -311,13 +324,62 @@ func character_death_not_disappear():
 ## 死亡直接消失
 func character_death_disappear():
 	is_death = true
+	is_can_death_language = false
 	hp_component.Hp_loss_death(false)
 	queue_free()
 
 ## 被小推车碾压
-## TODO: 修改为原版
-func be_mowered_run():
-	hp_component.Hp_loss_death(true)
+func be_mowered_run(lawn_mover:LawnMover):
+	## 取消亡语
+	is_can_death_language = false
+	## 首先死亡无掉落
+	hp_component.Hp_loss_death(false)
+	## 禁用移动组件 停止移动
+	move_component.disable_component(ComponentNormBase.E_IsEnableFactor.Death)
+	## 停止动画
+	anim_component.stop_anim()
+
+	var zombie_death_bomb:ZombieDeathBomb = get_node_or_null("Body/ZombieDeathBomb")
+	if zombie_death_bomb != null:
+		zombie_death_bomb.activate_it()
+	else:
+		await be_mowered_run_anim_norm(lawn_mover)
+
+	queue_free()
+
+
+
+## 被小推车碾压动画(普通)
+func be_mowered_run_anim_norm(lawn_mover:LawnMover):
+	## 先掉落防具
+	hp_component = hp_component as HpComponentZombie
+	if hp_component.max_hp_armor1 != 0:
+		hp_stage_change_component.judge_body_change_armor(0, 0, true, true)
+	if hp_component.max_hp_armor2 != 0:
+		hp_stage_change_component.judge_body_change_armor(0, 0, true, false)
+
+	## 修改本体掉落物（手和头）
+	var all_node_drop :Array[ZombieDropBase] = hp_stage_change_component.get_all_body_change()
+	for node_drop in all_node_drop:
+		node_drop.visible = false
+		node_drop.reparent(self)
+
+	## 身体被压扁
+	var tween_be_mowered_run:Tween = create_tween()
+	tween_be_mowered_run.set_parallel()
+	tween_be_mowered_run.tween_property(body, "rotation_degrees", 90, 0.25)
+	tween_be_mowered_run.tween_property(body, "scale", Vector2(0.5, 1), 0.25)
+
+	await tween_be_mowered_run.finished
+	body.visible = false
+
+	## 掉落本体掉落物
+	for node_drop in all_node_drop:
+		node_drop.visible = true
+		node_drop.acitvate_it_on_ground(lawn_mover.global_position.x)
+		SoundManager.play_character_SFX("limbs_pop")
+		await get_tree().create_timer(0.1).timeout
+
 
 ## 角色在泳池中死亡,泳池死亡动画调用
 func in_water_death_start():

@@ -8,9 +8,11 @@ var move_x:float
 func _ready() -> void:
 	super()
 	if is_instance_valid(Global.main_game.main_game_slope):
+		#await get_tree().process_frame
 		## 获取对应位置的斜面y相对位置
 		var slope_y_first = Global.main_game.main_game_slope.get_all_slope_y(global_position.x)
 		position.y += slope_y_first
+		print("x位置：", global_position.x, "修正位置：", slope_y_first)
 
 
 func _process(delta: float) -> void:
@@ -27,9 +29,9 @@ func _process(delta: float) -> void:
 
 
 ## 更新移动方向修正(斜面时使用)
-func update_move_dir_y_correct(move_dir_y_correct_slope:Vector2):
+func update_move_dir_y_correct(curr_move_dir_y_correct_slope:Vector2):
 	#print("更新移动方向:", move_dir)
-	self.move_dir_y_correct_slope = move_dir_y_correct_slope
+	self.move_dir_y_correct_slope = curr_move_dir_y_correct_slope
 
 
 
@@ -43,4 +45,4 @@ func _on_area_entered(area: Area2D) -> void:
 				animation_player.play("RoofCleaner")
 				SoundManager.play_other_SFX("lawnmower")
 
-			zombie.be_mowered_run()
+			zombie.be_mowered_run(self)

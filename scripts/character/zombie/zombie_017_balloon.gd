@@ -1,12 +1,21 @@
 extends Zombie000Base
 class_name Zombie017Balloon
 
+## 我是僵尸模式气球破裂的位置
+@export var balloon_pop_glo_pos_x_in_zombie_mode:float = 50
 @export_group("动画状态")
 @export var is_pop:=false
 
 func ready_norm():
 	super()
 	hurt_box_component.position.y -= 20
+
+func _process(_delta: float) -> void:
+	## 如果是我是僵尸模式
+	if is_zombie_mode:
+		if not is_pop and global_position.x < balloon_pop_glo_pos_x_in_zombie_mode:
+			hp_component = hp_component as HpComponentZombie
+			hp_component.Hp_loss(hp_component.curr_hp_armor1)
 
 ## 初始化正常出战角色信号连接
 func ready_norm_signal_connect():
@@ -18,7 +27,7 @@ func ready_norm_signal_connect():
 func balloon_pop():
 	if not is_death:
 		is_pop = true
-		hurt_box_component.position.y += 20
+		#hurt_box_component.position.y += 20
 		move_component.update_move_factor(true, MoveComponent.E_MoveFactor.IsAnimGap)
 		move_component.update_move_mode(MoveComponent.E_MoveMode.Ground)
 		curr_be_attack_status = E_BeAttackStatusZombie.IsNorm

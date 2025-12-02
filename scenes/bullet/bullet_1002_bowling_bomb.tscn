@@ -251,12 +251,13 @@ shape = SubResource("CircleShape2D_vwbp0")
 [node name="BombComponent" type="Node2D" parent="." index="4"]
 unique_name_in_owner = true
 script = ExtResource("7_flmls")
+bomb_lane = 1
 can_attack_plant_status = 7
 can_attack_zombie_status = 31
 
 [node name="Area2DBomb" type="Area2D" parent="BombComponent" index="0"]
 collision_layer = 0
-collision_mask = 20
+collision_mask = 4116
 input_pickable = false
 monitorable = false
 

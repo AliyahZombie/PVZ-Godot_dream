@@ -37,11 +37,6 @@ enum AdventureLevel{
 	Roof,
 }
 
-## 小游戏模式
-enum MiniGameLevel{
-	Bowling,		# 保龄球
-	HammerZombie,	# 锤僵尸
-}
 
 enum GameBGM {
 	FrontDay,
@@ -52,6 +47,8 @@ enum GameBGM {
 
 	MiniGame,
 	Boss,
+
+	Puzzle,
 }
 
 ## 出怪模式
@@ -72,6 +69,8 @@ const GameBGMMap = {
 	GameBGM.MiniGame: "res://assets/audio/BGM/mini_game.mp3",
 	GameBGM.Boss: "res://assets/audio/BGM/boss.mp3",
 
+	GameBGM.Puzzle: "res://assets/audio/BGM/puzzle.mp3",
+
 }
 
 #endregion
@@ -90,15 +89,22 @@ enum E_CardMode{
 #endregion
 
 #region 选关数据,管理关卡存档
-## 游戏模式
-var game_mode:String = "test"
+## 游戏模式(冒险，迷你游戏，解密，生存)，游戏选关场景
+var game_mode:Global.MainScenes = Global.MainScenes.Null
+## 游戏关卡所在的页面
+var level_page:int=0
 ## 当前关卡标识符
 var level_id:String = "test"
+## 多轮游戏存档保存的文件名(无后缀)
+var save_game_name:String
 
 ## 初始化选关数据
-func init_choose_level(curr_game_mode:String, curr_level_id:String):
+func init_choose_level(curr_game_mode:Global.MainScenes, curr_level_page:int, curr_level_id:String):
 	game_mode = curr_game_mode
+	level_page = curr_level_page
 	level_id = curr_level_id
+	save_game_name = str(game_mode) + "_" + str(level_page) + "_" + str(level_id)
+
 #endregion
 
 #region 关卡背景
@@ -124,11 +130,12 @@ func init_choose_level(curr_game_mode:String, curr_level_id:String):
 @export var is_day_sun:bool = true
 ## 是否有小推车
 @export var is_lawn_mover:bool = true
-##INFO:存档更新
-## 每个小推车是否存在
-var is_has_all_lawn_mover:Array = []
+## 是否僵尸能进房
+@export var is_zombie_can_home:bool = true
+
 @export_subgroup("预种植植物(从1开始,0为整行或整列)")
 @export var all_pre_plant_data:Array[PrePlantResource] = []
+
 
 #endregion
 
@@ -146,7 +153,7 @@ var is_has_all_lawn_mover:Array = []
 #region 出怪参数
 @export_group("出怪参数")
 ## 出怪模式
-@export var monster_mode :E_MonsterMode = E_MonsterMode.Norm
+@export var monster_mode:E_MonsterMode = E_MonsterMode.Norm
 ## 是否为小僵尸模式
 @export var is_mini_zombie := false
 @export_subgroup("正常出怪模式")
@@ -154,12 +161,6 @@ var is_has_all_lawn_mover:Array = []
 @export var zombie_multy := 1
 ## 每轮游戏出怪波次，每10波生成1旗帜
 @export var max_wave := 30
-##INFO:存档更新
-## 当前波次,存档更新该值
-var curr_wave:=-1
-##INFO:存档更新
-## 当前最大轮次,默认与max_wave相同, 多轮游戏存档时更新该值
-var curr_max_wave := 30
 ## 僵尸种类刷新列表 多轮游戏且自然出怪 自动更新自然出怪列表
 @export var zombie_refresh_types : Array[Global.ZombieType] = [
 	Global.ZombieType.Z001Norm,			# 普通僵尸
@@ -238,6 +239,73 @@ var curr_max_wave := 30
 @export var is_shovel := true
 #endregion
 
+#region 罐子参数
+@export_group("罐子参数")
+## 是否为砸罐子模式(砸罐子模式胜利条件)
+@export var is_pot_mode:=false
+enum E_PotMode{
+	Null,	## 无
+	Weight,	## 根据权重随机生成罐子
+	Fixd,	## 固定生成，随机位置
+}
+@export var pot_mode:E_PotMode=E_PotMode.Null
+## 是否可以看到结果随机罐子的结果
+@export var is_can_look_random_res_pot:=false
+## 多轮砸罐子模式是否保留植物数据
+@export var is_save_plant_on_pot_mode:=false
+
+@export_subgroup("权重随机生成")
+## 固定罐子和随机罐子占比(固定罐子:初始化时固定罐子结果，随机罐子: 打开罐子确定结果)
+@export_range(0, 1, 0.01) var weight_res_fiexd:float = 1
+## 生成罐子的位置(0表示当前整行或整列)
+@export var all_row_col_pot:Array[Vector2i]
+## 罐子植物候选列表[若没有，则从罐子植物白名单等权重随机生成]
+@export var candidate_plant_pot:Dictionary[Global.PlantType, int] = {}
+## 罐子僵尸候选列表[若没有，则从自然刷怪白名单等权重随机生成]
+@export var candidate_zombie_pot:Dictionary[Global.ZombieType, int] = {}
+## 会自动更新水路僵尸行类型的出怪候选列表
+var candidate_zombie_pot_with_zombie_row_type:Dictionary[Global.ZombieRowType, Dictionary] ={
+	Global.ZombieRowType.Land:{},
+	Global.ZombieRowType.Pool:{},
+}
+## 三类罐子占比(随机、植物、僵尸)
+@export var weight_pot_type :Vector3i = Vector3i(6, 2, 2)
+var weight_pot_type_sum:int = 10
+
+
+@export_subgroup("固定生成，随机位置(从后往前随机放置罐子，满足列对齐，不足的格子使用结果随机罐子补齐)")
+## 先安装僵尸行类型放置僵尸罐子，land - pool - both
+## 随机罐子生成植物
+@export var random_pot_plant:Dictionary[Global.PlantType, int]
+## 随机罐子生成僵尸
+@export var random_pot_zombie:Dictionary[Global.ZombieType, int]
+var random_pot_zombie_with_zombie_row_type:Dictionary[Global.ZombieRowType, Dictionary]
+## 植物罐子
+@export var plant_pot:Dictionary[Global.PlantType, int]
+## 僵尸罐子
+@export var zombie_pot:Dictionary[Global.ZombieType, int]
+var zombie_pot_with_zombie_row_type:Dictionary[Global.ZombieRowType, Dictionary]
+## 固定模式罐子总数
+var pot_num_on_fixed_mode:int = 0
+## 固定模式结果随机罐子的个数(随机，植物，僵尸)
+@export var random_pot_num_on_fixed_mode:Vector3i = Vector3i.ZERO
+#endregion
+
+#region 我是僵尸模式
+@export_group("我是僵尸模式")
+## 是否为我是僵尸模式
+## 我是僵尸模式单轮关卡先使用预种植植物数据生成植物，再使用下面的参数随机生成植物
+## 若预种植植物数据已经占住了位置，不会继续叠种
+@export var is_zombie_mode:=false
+## 植物列数
+@export var plant_col_on_zombie_mode:int=4
+## 我是僵尸模式的生成权重[种类，权重]
+@export var all_plants_weight_on_zombie_mode:Dictionary[Global.PlantType, int]
+## 必须生成的植物[种类，数量]
+@export var all_must_plants_on_zombie_mode:Dictionary[Global.PlantType, int]
+
+#endregion
+
 #region 迷你游戏物品参数
 @export_group("游戏物品参数")
 @export_subgroup("保龄球红线")
@@ -273,13 +341,15 @@ var save_game_data_main_game:ResourceSaveGameMainGame
 		出怪列表禁止: 011鸭子僵尸 021蹦极僵尸 025小鬼僵尸
 """
 func init_para():
-	curr_max_wave = max_wave
 	match card_mode:
 		E_CardMode.Norm:
 			pass
 		E_CardMode.ConveyorBelt:
 			can_choosed_card = false
 			is_day_sun = false
+	if card_mode != E_CardMode.Norm and can_choosed_card:
+		print("warning: 当前卡槽模式无法选卡, 已修改选卡为false")
+		can_choosed_card = false
 
 	## 补全预选卡
 	if pre_choosed_card_list_plant.size() < max_choosed_card_num:
@@ -292,16 +362,104 @@ func init_para():
 	## 出怪参数判断是否正确
 	if monster_mode == E_MonsterMode.Norm:
 		## 更新当前场景可以自然刷新的列表
-		can_refresh_zombie_types = get_can_refresh_zombie_types(game_sences)
-		if game_round != 1:
-			## 多轮游戏获取第一轮出怪列表
-			update_multi_round_zombie_refresh_types(1)
-		zombie_refresh_types = filter_invalid_zombie_refresh_types(zombie_refresh_types, can_refresh_zombie_types)
+		whitelist_refresh_zombie_types = Global.whitelist_refresh_zombie_types_with_zombie_row_type[Global.ZombieRowTypewithMainScenesMap[game_sences]]
+		zombie_refresh_types = filter_invalid_zombie_refresh_types(zombie_refresh_types, whitelist_refresh_zombie_types)
+
+	## 罐子模式
+	match pot_mode:
+		E_PotMode.Weight:
+			## 罐子参数更新
+			weight_pot_type_sum = weight_pot_type.x + weight_pot_type.y + weight_pot_type.z
+			## 若罐子可以刷新的植物为空，更新为 等权重 罐子刷新白名单
+			if candidate_plant_pot.is_empty():
+				for plant_type in Global.whitelist_plant_types_with_pot:
+					candidate_plant_pot[plant_type] = 1
+			else:
+				## 若在黑名单中，删除该植物
+				for plant_type in candidate_plant_pot.keys():
+					if Global.blacklist_plant_types_with_pot.has(plant_type):
+						candidate_plant_pot.erase(plant_type)
+						print("warning: 植物", Global.get_plant_info(plant_type, Global.PlantInfoAttribute.PlantName), "在罐子刷新黑名单中，已删除该植物")
+			if candidate_zombie_pot.is_empty():
+				for zombie_type in Global.whitelist_refresh_zombie_types_with_zombie_row_type[Global.ZombieRowType.Land]:
+					candidate_zombie_pot_with_zombie_row_type[Global.ZombieRowType.Land][zombie_type] = 1
+				for zombie_type in Global.whitelist_refresh_zombie_types_with_zombie_row_type[Global.ZombieRowType.Pool]:
+					candidate_zombie_pot_with_zombie_row_type[Global.ZombieRowType.Pool][zombie_type] = 1
+			else:
+				for zombie_type:Global.ZombieType in candidate_zombie_pot.keys():
+					if Global.blacklist_zombie_types_with_pot.has(zombie_type):
+						candidate_zombie_pot.erase(zombie_type)
+						print("warning: 僵尸", Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieName), "在罐子刷新黑名单中，已删除该僵尸")
+						continue
+
+					var curr_zombie_row_type:Global.ZombieRowType = Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieRowType)
+					match curr_zombie_row_type:
+						Global.ZombieRowType.Land:
+							candidate_zombie_pot_with_zombie_row_type[Global.ZombieRowType.Land][zombie_type] = candidate_zombie_pot[zombie_type]
+						Global.ZombieRowType.Pool:
+							candidate_zombie_pot_with_zombie_row_type[Global.ZombieRowType.Pool][zombie_type] = candidate_zombie_pot[zombie_type]
+						Global.ZombieRowType.Both:
+							candidate_zombie_pot_with_zombie_row_type[Global.ZombieRowType.Land][zombie_type] = candidate_zombie_pot[zombie_type]
+							candidate_zombie_pot_with_zombie_row_type[Global.ZombieRowType.Pool][zombie_type] = candidate_zombie_pot[zombie_type]
+				## 若有僵尸行类型候选列表为空，使用自然刷怪行类型白名单
+				if candidate_zombie_pot_with_zombie_row_type[Global.ZombieRowType.Land].is_empty():
+					for zombie_type in Global.whitelist_refresh_zombie_types_with_zombie_row_type[Global.ZombieRowType.Land]:
+						candidate_zombie_pot_with_zombie_row_type[Global.ZombieRowType.Land][zombie_type] = 1
+				if candidate_zombie_pot_with_zombie_row_type[Global.ZombieRowType.Pool].is_empty():
+					for zombie_type in Global.whitelist_refresh_zombie_types_with_zombie_row_type[Global.ZombieRowType.Pool]:
+						candidate_zombie_pot_with_zombie_row_type[Global.ZombieRowType.Pool][zombie_type] = 1
+
+		E_PotMode.Fixd:
+			pot_num_on_fixed_mode = 0
+			for plant_type in random_pot_plant.keys():
+				if Global.blacklist_plant_types_with_pot.has(plant_type):
+					random_pot_plant.erase(plant_type)
+					print("warning: 植物", Global.get_plant_info(plant_type, Global.PlantInfoAttribute.PlantName), "在罐子刷新黑名单中，已删除该植物")
+				else:
+					pot_num_on_fixed_mode += random_pot_plant[plant_type]
+			for plant_type in plant_pot.keys():
+				if Global.blacklist_plant_types_with_pot.has(plant_type):
+					plant_pot.erase(plant_type)
+					print("warning: 植物", Global.get_plant_info(plant_type, Global.PlantInfoAttribute.PlantName), "在罐子刷新黑名单中，已删除该植物")
+				else:
+					pot_num_on_fixed_mode += plant_pot[plant_type]
+			for zombie_type in random_pot_zombie.keys():
+				if Global.blacklist_zombie_types_with_pot.has(zombie_type):
+					random_pot_zombie.erase(zombie_type)
+					print("warning: 僵尸", Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieName), "在罐子刷新黑名单中，已删除该僵尸")
+				else:
+					pot_num_on_fixed_mode += random_pot_zombie[zombie_type]
+			for zombie_type in zombie_pot.keys():
+				if Global.blacklist_zombie_types_with_pot.has(zombie_type):
+					zombie_pot.erase(zombie_type)
+					print("warning: 僵尸", Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieName), "在罐子刷新黑名单中，已删除该僵尸")
+				else:
+					pot_num_on_fixed_mode += zombie_pot[zombie_type]
+			print("固定模式的罐子总数为：", pot_num_on_fixed_mode)
+			random_pot_zombie_with_zombie_row_type = get_pot_zombie_with_row_type_pot_on_fiexd_mode(random_pot_zombie)
+			zombie_pot_with_zombie_row_type = get_pot_zombie_with_row_type_pot_on_fiexd_mode(zombie_pot)
+
+	## 我是僵尸模式，僵尸禁止进房
+	if is_zombie_mode:
+		is_zombie_can_home = false
 
 	## 多轮游戏 存档
 	if game_round != 1:
 		print("更新多轮游戏存档数据")
 		update_data_with_save_game_data()
+
+## 罐子固定生成模式下，获取僵尸按行类型生成的分类字典
+func get_pot_zombie_with_row_type_pot_on_fiexd_mode(pot_zombie_dic:Dictionary) -> Dictionary[Global.ZombieRowType, Dictionary]:
+	var pot_zombie_with_row_type:Dictionary[Global.ZombieRowType, Dictionary] = {
+		Global.ZombieRowType.Land:{},
+		Global.ZombieRowType.Pool:{},
+		Global.ZombieRowType.Both:{}
+	}
+	for zombie_type in pot_zombie_dic.keys():
+		var zombie_row_type:Global.ZombieRowType = Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieRowType)
+		pot_zombie_with_row_type[zombie_row_type][zombie_type] = pot_zombie_dic[zombie_type]
+
+	return pot_zombie_with_row_type
 
 ## 更新数据 (存档相关)
 func update_data_with_save_game_data():
@@ -318,30 +476,6 @@ func update_data_with_save_game_data():
 		print("关卡数据存档不存在：", path)
 		save_game_data_main_game = null
 
-	## 存在存档文件
-	if save_game_data_main_game != null:
-		## 保存原始数据
-		ori_data_on_save_data_update["all_pre_plant_data"] = all_pre_plant_data
-		ori_data_on_save_data_update["curr_max_wave"] = curr_max_wave
-		ori_data_on_save_data_update["curr_wave"] = curr_wave
-		ori_data_on_save_data_update["is_has_all_lawn_mover"] = is_has_all_lawn_mover
-
-		## 清空预种植植物
-		all_pre_plant_data = []
-		curr_max_wave = save_game_data_main_game.curr_max_wave
-		curr_wave = save_game_data_main_game.curr_wave
-		is_has_all_lawn_mover = save_game_data_main_game.lawn_mover_manager_data.get("is_has_all_lawn_mover", [])
-
-	## 没有存档文件,有原始数据,将原始数据覆盖当前值
-	else:
-		if not ori_data_on_save_data_update.is_empty():
-			## 清空预种植植物
-			all_pre_plant_data = ori_data_on_save_data_update["all_pre_plant_data"]
-			curr_max_wave = ori_data_on_save_data_update["curr_max_wave"]
-			curr_wave = ori_data_on_save_data_update["curr_wave"]
-			is_has_all_lawn_mover = ori_data_on_save_data_update["is_has_all_lawn_mover"]
-
-			ori_data_on_save_data_update.clear()
 
 ## 删除存档
 func delete_game_data():
@@ -359,47 +493,13 @@ func delete_game_data():
 
 #region 自然刷怪过滤
 ## 当前场景可以刷新的僵尸
-var can_refresh_zombie_types:Array[Global.ZombieType] = []
-
-## 蹦极僵尸可以选择,选择后自动更新删除,修改is_bungi值
-## 不能自然刷怪出现的僵尸类型(null, 旗帜, 鸭子, 伴舞, 小鬼, 滑雪单人)
-var no_can_refresh_zombie_types:Array[Global.ZombieType] = [
-	Global.ZombieType.Null,
-	Global.ZombieType.Z002Flag,
-	Global.ZombieType.Z011Duckytube,
-	Global.ZombieType.Z010Dancer,
-	Global.ZombieType.Z025Imp,
-	Global.ZombieType.Z1001BobsledSingle,
-]
-
-## 获取当前场景可以刷新的僵尸
-func get_can_refresh_zombie_types(curr_game_sences:Global.MainScenes) -> Array[Global.ZombieType]:
-	## 场景的僵尸行类型
-	var zombie_row_type_with_scene:Global.ZombieRowType = Global.ZombieRowTypewithMainScenesMap[curr_game_sences]
-	var curr_can_refresh_zombie_types:Array[Global.ZombieType] = []
-	for zombie_type in Global.ZombieType.values():
-		## 僵尸类型不能刷新
-		if no_can_refresh_zombie_types.has(zombie_type):
-			continue
-
-		## 满足当前场景的僵尸行类型
-		if zombie_row_type_with_scene == Global.ZombieRowType.Both:
-			curr_can_refresh_zombie_types.append(zombie_type)
-		else:
-			var zombie_row_type:Global.ZombieRowType = Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieRowType)
-			if zombie_row_type == Global.ZombieRowType.Both:
-				curr_can_refresh_zombie_types.append(zombie_type)
-			elif zombie_row_type == zombie_row_type_with_scene:
-				curr_can_refresh_zombie_types.append(zombie_type)
-
-	return curr_can_refresh_zombie_types
-
+var whitelist_refresh_zombie_types:Array[Global.ZombieType] = []
 
 ## 过滤错误出怪僵尸
-func filter_invalid_zombie_refresh_types(zombie_types:Array[Global.ZombieType], curr_can_refresh_zombie_types:Array[Global.ZombieType] ):
+func filter_invalid_zombie_refresh_types(zombie_types:Array[Global.ZombieType], curr_whitelist_refresh_zombie_types:Array[Global.ZombieType] ):
 	var is_err:=false
 	for i in range(zombie_types.size()-1, -1, -1):
-		if not curr_can_refresh_zombie_types.has(zombie_types[i]):
+		if not curr_whitelist_refresh_zombie_types.has(zombie_types[i]):
 			print("warning: 出怪刷新列表中", \
 				Global.get_zombie_info(zombie_types[i], Global.ZombieInfoAttribute.ZombieName), \
 				"不在当前场景可以自然刷怪列表"
@@ -421,63 +521,16 @@ func filter_invalid_zombie_refresh_types(zombie_types:Array[Global.ZombieType], 
 
 #endregion
 
-#region 多轮(无尽)出怪
-## 多轮出怪获取出怪列表
-func update_multi_round_zombie_refresh_types(curr_round:int=1) -> void:
-	is_bungi = false
-	zombie_refresh_types = []
-	# 第一次选卡 (curr_round == 1) 的 “固定三种”：普僵 + 路障 + 铁桶
-	if curr_round == 1:
-		zombie_refresh_types.append(Global.ZombieType.Z001Norm)
-		zombie_refresh_types.append(Global.ZombieType.Z003Cone)
-		zombie_refresh_types.append(Global.ZombieType.Z005Bucket)
-	else:
-		var can_refresh_zombie_types_copy = can_refresh_zombie_types.duplicate(true)
-		zombie_refresh_types.append(Global.ZombieType.Z001Norm)
-		can_refresh_zombie_types_copy.erase(Global.ZombieType.Z001Norm)
-		# 第二种：80% 路障 (Cone)，20% 报纸 (Paper)
-		var prob = randf()
-		if prob < 0.8:
-			zombie_refresh_types.append(Global.ZombieType.Z003Cone)
-			can_refresh_zombie_types_copy.erase(Global.ZombieType.Z003Cone)
-		else:
-			zombie_refresh_types.append(Global.ZombieType.Z006Paper)
-			can_refresh_zombie_types_copy.erase(Global.ZombieType.Z006Paper)
-		## 第二轮之后可能刷新僵尸(min(轮次*2,8)+2)个
-		for i in range(min(curr_round * 2, 8)):
-			var zombie_type_choose = can_refresh_zombie_types_copy.pick_random()
-			zombie_refresh_types.append(zombie_type_choose)
-			can_refresh_zombie_types_copy.erase(zombie_type_choose)
-
-			if zombie_type_choose == Global.ZombieType.Z021Bungi:
-				print("warning: 出怪刷新列表禁止使用 Z021Bungi ,已修改为选择 is_bungi 参数")
-				is_bungi = true
-				zombie_refresh_types.erase(zombie_type_choose)
-
-			if can_refresh_zombie_types_copy.is_empty():
-				break
-
-	print("当前轮次", curr_round,"可能刷新的僵尸类型有:")
-	for zombie_type in zombie_refresh_types:
-		print(Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieName))
-
-
-#endregion
-
 #region 存档
 ## 读档系统只能从空白场景读档
-const MainGameSaveDirName := "main_game_saves_data"
-
 ## 获取存档路径
 func get_save_game_path()->String:
 	## 确保存档文件存在
 	var dir = DirAccess.open("user://")
-	if not dir.dir_exists(MainGameSaveDirName):
-		dir.make_dir(MainGameSaveDirName)
+	if not dir.dir_exists(Global.curr_user_name + "/" + Global.MainGameSaveDirName):
+		dir.make_dir(Global.curr_user_name + "/" + Global.MainGameSaveDirName)
 
-	var save_game_file_name = game_mode + "_" + level_id
-	return "user://" + MainGameSaveDirName + "/" + save_game_file_name + ".tres"
-
+	return "user://" + Global.curr_user_name + "/" + Global.MainGameSaveDirName + "/" + save_game_name + ".tres"
 
 
 #endregion

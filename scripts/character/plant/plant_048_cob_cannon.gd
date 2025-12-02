@@ -6,6 +6,7 @@ var plant_cell_next:PlantCell
 
 ## 加农炮子弹,设置其明暗交替
 @onready var cob_cannon_cob: Sprite2D = $Body/BodyCorrect/CobCannon_cob
+@onready var area_2d_mouse: Area2D = $Body/Area2DMouse
 
 ## 瞄准准星
 @onready var cob_cannon_target: CobCannonTarget = $CobCannonTarget
@@ -47,6 +48,7 @@ func ready_norm():
 	# 连接超时信号
 	charge_cd_timer.timeout.connect(_on_charge_cd_timer_timeout)
 
+	area_2d_mouse.visible = true
 
 func cob_cannon_bright_dark():
 	# 你希望变到的 “暗” 颜色或透明度
@@ -89,6 +91,7 @@ func shoot_bullet():
 	Global.main_game.bullets.add_child(bullet_cob_cannon)
 	bullet_cob_cannon.global_position = marker_2d_bullet.global_position
 
+	SoundManager.play_character_SFX("coblaunch")
 
 ## 充能完毕
 func charge_end():
@@ -104,6 +107,7 @@ func _on_area_2d_mouse_exited() -> void:
 	body.body_light_and_dark_end()
 
 
+@warning_ignore("unused_parameter")
 func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 	## 有子弹时左键点击,准备发射
 	if is_bullet and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:

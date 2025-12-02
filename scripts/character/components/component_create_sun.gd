@@ -27,6 +27,24 @@ var create_interval :float
 var create_sun_color: Color = Color(1, 1, 1)
 
 
+#region 我是僵尸模式
+@export_group("我是僵尸模式")
+## 剩余的阳光数量
+@export var remaining_sun_on_zombie_mode := 8
+## 被攻击一次生产一个阳光
+func _on_be_eat_once():
+	if remaining_sun_on_zombie_mode > 0:
+		remaining_sun_on_zombie_mode -= 1
+		_spawn_sun()
+
+## 当角色死亡时
+func _on_character_death():
+	if remaining_sun_on_zombie_mode > 0:
+		for i in range(remaining_sun_on_zombie_mode):
+			_spawn_sun()
+		remaining_sun_on_zombie_mode = 0
+
+#endregion
 func _ready() -> void:
 	#if get_tree().current_scene != MainGameManager:
 	if not get_tree().current_scene is MainGameManager:
@@ -46,12 +64,14 @@ func _on_main_game_progress_update(curr_main_game_progress:MainGameManager.E_Mai
 ## 启用组件
 func enable_component(is_enable_factor:E_IsEnableFactor):
 	super(is_enable_factor)
-	create_sun_timer.start(create_sun_timer.wait_time / create_speed)
+	if is_enabling:
+		create_sun_timer.start(create_sun_timer.wait_time / create_speed)
 
 ## 禁用组件
 func disable_component(is_enable_factor:E_IsEnableFactor):
 	super(is_enable_factor)
-	create_sun_timer.stop()
+	if not is_enabling:
+		create_sun_timer.stop()
 
 func owner_update_speed(speed_product:float):
 	if is_enabling:
@@ -82,7 +102,7 @@ func _spawn_sun():
 		Global.main_game.suns.add_child(new_sun)
 
 		# 控制阳光下落
-		var tween = create_tween()
+		var tween = new_sun.create_tween()
 		var center_y : float = -15
 		var target_y : float = 45
 		tween.tween_property(new_sun, "position:y", center_y, 0.3).as_relative().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)

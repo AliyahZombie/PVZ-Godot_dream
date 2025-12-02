@@ -1,9 +1,9 @@
 extends Node
 class_name ZombieManager
 
+@onready var main_game: MainGameManager = $"../.."
 ## 最后一波僵尸每秒检测是否有僵尸离开当前视野
 @onready var check_zombie_end_wave_timer: Timer = $CheckZombieEndWaveTimer
-
 ## 管理器
 @onready var zombie_wave_manager: ZombieWaveManager = $ZombieWaveManager
 @onready var zombie_show_in_start: ZombieShowInStart = $ZombieShowInStart
@@ -13,20 +13,26 @@ class_name ZombieManager
 ## 所有僵尸根节点
 @onready var zombies_root: Node2D = %ZombiesRoot
 
+#region 僵尸管理器参数
+## 刷怪类型
+var is_bungi = false
+var zombie_refresh_types = []
+
+## 出怪模式
+var monster_mode:ResourceLevelData.E_MonsterMode = ResourceLevelData.E_MonsterMode.Norm
+## 是否为僵尸快跑模式
+var is_mini_zombie := false
+## 是否为我是僵尸模式
+var is_zombie_mode:=false
+#endregion
+
 #region 多轮游戏
 ## 多轮游戏最后一波计时器
 var multi_round_end_wave_timer:Timer
 ## 多轮游戏最后一波时长
 var multi_round_end_wave_time :float = 49
-## 当前轮次
-var curr_game_round := 1
-## 最大轮次(0表示无尽模式)
-var max_game_round := 1
 
 #endregion
-
-## 是否为小僵尸大麻烦模式
-var is_mini_zombie:=false
 
 var curr_zombie_num:int = 0:
 	set(v):
@@ -40,8 +46,6 @@ var is_end_wave := false
 var all_zombies_be_hypno:Array[Zombie000Base] = []
 ## 僵尸可以存在的x坐标范围,超出该范围,每波刷新时删除,最后一波时每秒删除检查删除
 var zombie_range_pos_x:=Vector2(-300, 900)
-## 出怪模式
-var monster_mode:ResourceLevelData.E_MonsterMode
 ## 所有僵尸列表,用于每波清除在地图外的僵尸(矿工,魅惑等僵尸)
 var all_zombies_1d:Array[Zombie000Base]
 
@@ -49,8 +53,12 @@ var all_zombies_1d:Array[Zombie000Base]
 var all_zombie_rows:Array[ZombieRow] = []
 ## 冰道,按行保存每行的冰道
 var all_ice_roads:Array[Array] = []
-## 按行保存僵尸，用于保存僵尸列表的列表
+## 按行保存僵尸，用于保存僵尸列表的列表,僵尸被魅惑后从该列表中删除
 var all_zombies_2d:Array[Array]
+
+## 是否被冻结，用于管理冰消珊瑚
+var is_ice:bool
+var ice_timer:Timer
 
 signal signal_curr_zombie_num_change(num:int)
 
@@ -79,16 +87,26 @@ func _ready():
 
 ## 初始僵尸管理器
 func init_zombie_manager(game_para:ResourceLevelData):
-	zombie_show_in_start.init_zombie_show_in_start(game_para)
-	self.monster_mode = game_para.monster_mode
-	self.is_mini_zombie = game_para.is_mini_zombie
-	self.max_game_round = game_para.game_round
-	match self.monster_mode:
+	## 出怪模式
+	monster_mode = game_para.monster_mode
+	## 是否为僵尸快跑模式
+	is_mini_zombie = game_para.is_mini_zombie
+	## 是否为我是僵尸模式
+	is_zombie_mode = game_para.is_zombie_mode
+	match monster_mode:
 		## 没有僵尸刷新,直接启动最后一波僵尸检查计时器
 		ResourceLevelData.E_MonsterMode.Null:
 			check_zombie_end_wave_timer.start()
 
 		ResourceLevelData.E_MonsterMode.Norm:
+			## 如果游戏是多轮游戏
+			if game_para.game_round != 1:
+				update_multi_round_zombie_refresh_types(main_game.curr_game_round, main_game.game_para.game_sences)
+			else:
+				## 刷怪类型
+				is_bungi = game_para.is_bungi
+				zombie_refresh_types = game_para.zombie_refresh_types
+
 			zombie_wave_manager.init_zombie_wave_manager(game_para)
 			## 波次刷新时判断是否为最后一波，删除多余魅惑僵尸
 			zombie_wave_manager.signal_wave_refresh.connect(wave_refresh)
@@ -102,7 +120,7 @@ func init_zombie_manager(game_para:ResourceLevelData):
 
 ## 开始第一波
 func start_game():
-	match self.monster_mode:
+	match monster_mode:
 		ResourceLevelData.E_MonsterMode.Null:
 			return
 
@@ -126,6 +144,8 @@ func create_norm_zombie(
 ) -> Zombie000Base:
 	var zombie:Zombie000Base = Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieScenes).instantiate()
 	zombie_init_para[Zombie000Base.E_ZInitAttr.IsMiniZombie] = is_mini_zombie
+	zombie_init_para[Zombie000Base.E_ZInitAttr.IsZombieMode] = is_zombie_mode
+
 	zombie.init_zombie(zombie_init_para)
 	if not init_zombie_special.is_null():
 		init_zombie_special.call(zombie)
@@ -171,38 +191,9 @@ func _on_zombie_dead(zombie: Zombie000Base) -> void:
 
 		## 如果到了最后一波刷新,且僵尸全部死亡
 		if is_end_wave and curr_zombie_num == 0:
-			## 多轮游戏,非最后一轮
-			if curr_game_round != max_game_round:
-				_on_trigger_start_next_round_game()
-				assert(max_game_round == 0 or curr_game_round < max_game_round, "非无尽模式,且当前轮次大于最大轮次,当前轮次:" + str(curr_game_round) + "最大轮次:" + str(max_game_round))
-			else:
-				create_trophy(zombie.global_position)
-#endregion
-
-#region 奖杯
-## 创建奖杯
-func create_trophy(glo_pos:Vector2):
-	print("=======================游戏结束，您获胜了=======================")
-	var trophy = SceneRegistry.TROPHY.instantiate()
-	Global.main_game.canvas_layer_temp.add_child(trophy)
-	trophy.global_position = glo_pos
-	if trophy.global_position.x >= 750:
-		var x_diff = trophy.global_position.x - 750
-		throw_to(trophy, trophy.position - Vector2(x_diff + randf_range(0,50), 0))
-	else:
-		throw_to(trophy, trophy.position - Vector2(randf_range(-50,50), 0))
-
-## 奖杯抛出
-func throw_to(node:Node2D, target_pos: Vector2, duration: float = 1.0):
-	var start_pos = node.position
-	var peak_pos = start_pos.lerp(target_pos, 0.5)
-	peak_pos.y -= 50  # 向上抛
-
-	var tween = create_tween()
-	tween.tween_property(node, "position:x", target_pos.x, duration).set_trans(Tween.TRANS_LINEAR)
-
-	tween.parallel().tween_property(node, "position:y", peak_pos.y, duration / 2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(node, "position:y", target_pos.y, duration / 2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN).set_delay(duration / 2)
+			EventBus.push_event("create_trophy", [zombie.global_position])
+			if is_instance_valid(multi_round_end_wave_timer):
+				multi_round_end_wave_timer.stop()
 #endregion
 
 #region 波次刷新
@@ -212,10 +203,8 @@ func wave_refresh(curr_is_end_wave:bool):
 	if is_end_wave:
 		check_zombie_end_wave_timer.start()
 		print("最后一波僵尸检测是否有离开当前视野的僵尸")
-		## 如果不是最大游戏轮次
-		if curr_game_round != max_game_round:
-			multi_round_end_wave_timer_start()
-			assert(max_game_round == 0 or curr_game_round < max_game_round, "非无尽模式,且当前轮次大于最大轮次,当前轮次:" + str(curr_game_round) + "最大轮次:" + str(max_game_round))
+		## 多轮游戏计时器启动
+		multi_round_end_wave_timer_start()
 
 ### 删除移动超出视野的僵尸,每次刷新僵尸调用
 func set_zombie_death_over_view():
@@ -239,6 +228,7 @@ func multi_round_end_wave_timer_start():
 		multi_round_end_wave_timer.timeout.connect(_on_trigger_start_next_round_game)
 		add_child(multi_round_end_wave_timer)
 	multi_round_end_wave_timer.start()
+	print("多轮游戏波次后一波计时器启动")
 
 ## 触发开始下一轮game
 func _on_trigger_start_next_round_game():
@@ -247,20 +237,72 @@ func _on_trigger_start_next_round_game():
 #endregion
 
 #region 开始下一轮游戏
-
 ## 僵尸管理器更新
-func start_next_game_zombie_mananger_update(game_para:ResourceLevelData):
-	print("开始下一轮游戏")
-	curr_game_round += 1
+func start_next_game_zombie_mananger_update():
 	is_end_wave = false
-	check_zombie_end_wave_timer.stop()
-	## 获取当前轮次的出怪列表
-	game_para.update_multi_round_zombie_refresh_types(curr_game_round)
-	zombie_wave_manager.start_next_game_zombie_wave_mananger_update(game_para.zombie_refresh_types, game_para.is_bungi)
-	zombie_show_in_start.update_show_zombies_type(game_para.zombie_refresh_types, game_para.is_bungi)
-	## 更新波次管理器
-	#zombie_wave_manager.init_zombie_wave_manager(game_para)
+	match monster_mode:
+		ResourceLevelData.E_MonsterMode.Norm:
+			check_zombie_end_wave_timer.stop()
+			## 更新当前轮次的出怪列表
+			update_multi_round_zombie_refresh_types(main_game.curr_game_round, main_game.game_para.game_sences)
+			zombie_wave_manager.start_next_game_zombie_wave_mananger_update()
+
+	## 我是僵尸模式删除所有的僵尸
+	if is_zombie_mode:
+		for i in range(all_zombies_1d.size()-1,-1,-1):
+			var zombie:Zombie000Base = all_zombies_1d[i]
+			zombie.character_death_disappear()
+
 #endregion
+
+
+#region 多轮(无尽)出怪
+## 多轮出怪获取出怪列表
+func update_multi_round_zombie_refresh_types(curr_round:int, game_sences:Global.MainScenes) -> void:
+	## 清空数据
+	is_bungi = false
+	zombie_refresh_types.clear()
+	# 第一次选卡 (curr_round == 1) 的 “固定三种”：普僵 + 路障 + 铁桶
+	if curr_round == 1:
+		zombie_refresh_types.append(Global.ZombieType.Z001Norm)
+		zombie_refresh_types.append(Global.ZombieType.Z003Cone)
+		zombie_refresh_types.append(Global.ZombieType.Z005Bucket)
+	else:
+		var whitelist_refresh_zombie_types_copy = Global.whitelist_refresh_zombie_types_with_zombie_row_type[Global.ZombieRowTypewithMainScenesMap[game_sences]].duplicate(true)
+		zombie_refresh_types.append(Global.ZombieType.Z001Norm)
+		whitelist_refresh_zombie_types_copy.erase(Global.ZombieType.Z001Norm)
+		# 第二种：80% 路障 (Cone)，20% 报纸 (Paper)
+		var prob = randf()
+		if prob < 0.8:
+			zombie_refresh_types.append(Global.ZombieType.Z003Cone)
+			whitelist_refresh_zombie_types_copy.erase(Global.ZombieType.Z003Cone)
+		else:
+			zombie_refresh_types.append(Global.ZombieType.Z006Paper)
+			whitelist_refresh_zombie_types_copy.erase(Global.ZombieType.Z006Paper)
+		## 第二轮之后可能刷新僵尸(min(轮次*2,8)+2)个
+		for i in range(min(curr_round * 2, 8)):
+			var zombie_type_choose = whitelist_refresh_zombie_types_copy.pick_random()
+			zombie_refresh_types.append(zombie_type_choose)
+			whitelist_refresh_zombie_types_copy.erase(zombie_type_choose)
+
+			if zombie_type_choose == Global.ZombieType.Z021Bungi:
+				print("warning: 出怪刷新列表禁止使用 Z021Bungi ,已修改为选择 is_bungi 参数")
+				is_bungi = true
+				zombie_refresh_types.erase(zombie_type_choose)
+
+			if whitelist_refresh_zombie_types_copy.is_empty():
+				break
+
+	print("当前轮次", curr_round,"可能刷新的僵尸类型有:")
+	for zombie_type in zombie_refresh_types:
+		print(Global.get_zombie_info(zombie_type, Global.ZombieInfoAttribute.ZombieName))
+	if is_bungi:
+		print(Global.get_zombie_info(Global.ZombieType.Z021Bungi, Global.ZombieInfoAttribute.ZombieName))
+
+
+#endregion
+
+
 #endregion
 #endregion
 
@@ -275,6 +317,9 @@ func delete_prepare_show_zombies():
 #region 植物调用相关，寒冰菇\火爆辣椒\三叶草
 ## 冰冻所有僵尸
 func ice_all_zombie(time_ice:float, time_decelerate: float):
+	## 冰消珊瑚
+	is_ice = true
+	start_ice_timer(time_ice)
 	for zombie_row:Array in all_zombies_2d:
 		if zombie_row.is_empty():
 			continue
@@ -287,6 +332,23 @@ func ice_all_zombie(time_ice:float, time_decelerate: float):
 			zombie.add_child(ice_effect)
 			zombie.ice_effect = ice_effect
 			ice_effect.start_ice_effect(time_ice)
+			## 被冰冻掉20血
+			zombie.be_attacked_bullet(20, Global.AttackMode.Real, true, false)
+
+func start_ice_timer(wait_time:float):
+	if not is_instance_valid(ice_timer):
+		ice_timer = Timer.new()
+		ice_timer.one_shot = true
+		ice_timer.timeout.connect(_on_ice_timer_timeout)
+		add_child(ice_timer)
+	ice_timer.start(wait_time)
+
+func _on_ice_timer_timeout():
+	if is_ice == false:
+		push_error("冰消珊瑚计时器有误，is_ice应该为true")
+	is_ice = false
+
+
 
 
 func jalapeno_bomb_item_lane(lane:int):

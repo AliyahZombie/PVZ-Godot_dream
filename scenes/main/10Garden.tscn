@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://bro2wcaph4ceu"]
+[gd_scene load_steps=31 format=3 uid="uid://bro2wcaph4ceu"]
 
 [ext_resource type="Script" uid="uid://cjfk7fy344tvb" path="res://scripts/garden/garden_manager.gd" id="1_cd35e"]
 [ext_resource type="Texture2D" uid="uid://47ixd5hsddft" path="res://assets/image/ui/ui_card/ShovelBank.png" id="1_uu8cm"]
@@ -27,7 +27,9 @@
 [ext_resource type="Texture2D" uid="uid://b6cln5l56plwn" path="res://assets/reanim/tree_bg.jpg" id="25_aho5g"]
 [ext_resource type="PackedScene" uid="uid://b2xxhep8oyipk" path="res://scenes/item/coin_bank_label.tscn" id="26_aho5g"]
 [ext_resource type="PackedScene" uid="uid://buvouxkkc7wot" path="res://scenes/garden/08_wheel_barrow.tscn" id="26_qgitf"]
-[ext_resource type="PackedScene" uid="uid://cmrhicx0325" path="res://scenes/item/store_enter_key.tscn" id="27_13fw2"]
+[ext_resource type="Texture2D" uid="uid://xsu0epbjdx8o" path="res://assets/image/ui/ui_start_menu/SelectorScreen_Store.png" id="27_y8v5q"]
+[ext_resource type="Texture2D" uid="uid://c7hm6tgjy1fbs" path="res://assets/image/ui/ui_start_menu/SelectorScreen_StoreHighlight.png" id="28_rnm3w"]
+[ext_resource type="BitMap" uid="uid://cra43htuprgvi" path="res://assets/image/ui/ui_start_menu/SelectorScreen_Store_Mask.png" id="29_s3nj7"]
 
 [node name="Garden" type="Node2D"]
 script = ExtResource("1_cd35e")
@@ -242,7 +244,6 @@ texture = ExtResource("16_hjxn1")
 [node name="PlantCellGarden" type="Control" parent="CanvasLayer/PanelUI/HBoxContainer/GardenItemButton8/ItemTexture"]
 z_index = 100
 custom_minimum_size = Vector2(75, 75)
-layout_mode = 3
 anchors_preset = 0
 offset_left = 27.0
 offset_top = 6.0
@@ -410,9 +411,18 @@ focus_neighbor_bottom = NodePath("")
 focus_next = NodePath("")
 focus_previous = NodePath("")
 focus_mode = 2
+focus_behavior_recursive = 0
 mouse_filter = 0
+mouse_behavior_recursive = 0
 mouse_force_pass_scroll_events = true
 mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
 theme = ExtResource("20_i7yie")
 theme_type_variation = &""
 disabled = false
@@ -512,7 +522,7 @@ offset_bottom = -56.0
 grow_vertical = 0
 auto_hide = null
 
-[node name="StoreEnterKey" parent="CanvasLayer" instance=ExtResource("27_13fw2")]
+[node name="StoreEnterKey" type="TextureButton" parent="CanvasLayer"]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -521,12 +531,23 @@ offset_top = 59.0
 offset_right = -5.0
 offset_bottom = 101.0
 grow_horizontal = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("27_y8v5q")
+texture_pressed = ExtResource("28_rnm3w")
+texture_hover = ExtResource("28_rnm3w")
+texture_click_mask = ExtResource("29_s3nj7")
+ignore_texture_size = true
 stretch_mode = 0
+script = ExtResource("22_aho5g")
 
 [node name="TreeBg" type="Sprite2D" parent="."]
 visible = false
 texture = ExtResource("25_aho5g")
 centered = false
 
+[node name="CanvasLayerStore" type="CanvasLayer" parent="."]
+layer = 100
+
 [connection signal="pressed" from="CanvasLayer/Next" to="." method="_on_next_pressed"]
 [connection signal="pressed" from="CanvasLayer/ReturnStartMenu" to="." method="_on_return_start_menu_pressed"]
+[connection signal="pressed" from="CanvasLayer/StoreEnterKey" to="CanvasLayer/StoreEnterKey" method="_on_pressed"]

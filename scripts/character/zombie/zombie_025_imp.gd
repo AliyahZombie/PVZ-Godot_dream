@@ -21,6 +21,11 @@ func ready_norm():
 	if is_thrown:
 		update_body_correct_pos_throw()
 		SoundManager.play_character_SFX(&"imp")
+	## 罐子僵尸,小鬼僵尸血量变为原始的一半
+	if is_pot_zombie:
+		hp_component = hp_component as HpComponentZombie
+		hp_component.update_mini_zombie_hp()
+		hp_stage_change_component.update_mini_zombie_hp_stage_change()
 
 ## 投掷小鬼更新BodyCorrect位置
 func update_body_correct_pos_throw():

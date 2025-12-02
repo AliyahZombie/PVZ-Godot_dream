@@ -228,7 +228,11 @@ func be_hypno():
 
 ## 被压扁
 ## [character:Character000Base] 发动攻击的角色
-func be_flattened(_character:Character000Base):
+func be_flattened_from_enemy(_character:Character000Base):
+	be_flattened()
+
+## 植物被压扁，无敌人(罐子压扁)
+func be_flattened():
 	body.be_flattened_body()
 	## 角色死亡消失
 	character_death_disappear()

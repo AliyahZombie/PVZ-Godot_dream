@@ -2051,12 +2051,12 @@ states/Zombie_digger_up/position = Vector2(371, 191)
 states/Zombie_digger_walk/node = SubResource("AnimationNodeAnimation_0lsoy")
 states/Zombie_digger_walk/position = Vector2(713, 348)
 transitions = ["Start", "Zombie_digger_idle", SubResource("AnimationNodeStateMachineTransition_fk1an"), "Start", "Zombie_digger_dig", SubResource("AnimationNodeStateMachineTransition_yocpx"), "Zombie_digger_idle", "Zombie_digger_dig", SubResource("AnimationNodeStateMachineTransition_xe4ql"), "Zombie_digger_landing", "Zombie_digger_walk", SubResource("AnimationNodeStateMachineTransition_g4wth"), "Zombie_digger_walk", "Zombie_digger_eat", SubResource("AnimationNodeStateMachineTransition_cq2k0"), "Zombie_digger_eat", "Zombie_digger_walk", SubResource("AnimationNodeStateMachineTransition_27bjy"), "Zombie_digger_walk", "Zombie_digger_death", SubResource("AnimationNodeStateMachineTransition_iss48"), "Zombie_digger_eat", "Zombie_digger_death", SubResource("AnimationNodeStateMachineTransition_hgdf1"), "Zombie_digger_landing", "Zombie_digger_death", SubResource("AnimationNodeStateMachineTransition_q7ucn"), "Zombie_digger_dig", "Zombie_digger_up", SubResource("AnimationNodeStateMachineTransition_sgrki"), "Zombie_digger_up", "Zombie_digger_walk", SubResource("AnimationNodeStateMachineTransition_fo048"), "Zombie_digger_up", "Zombie_digger_death", SubResource("AnimationNodeStateMachineTransition_dyxd0"), "Zombie_digger_dig", "Zombie_digger_landing_start", SubResource("AnimationNodeStateMachineTransition_ddxed"), "Zombie_digger_landing_start", "Zombie_digger_landing", SubResource("AnimationNodeStateMachineTransition_24p33")]
-graph_offset = Vector2(286, 74)
+graph_offset = Vector2(155, -7)
 
 [sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_wbmuf"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_g136x"]
-graph_offset = Vector2(-262.091, 54.1322)
+graph_offset = Vector2(-247.78586, 16.691956)
 nodes/StateMachine/node = SubResource("AnimationNodeStateMachine_e611t")
 nodes/StateMachine/position = Vector2(-160, 140)
 nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_wbmuf")
@@ -2092,7 +2092,7 @@ anim_offset_max = 1.0
 
 [node name="Zombie018Digger" node_paths=PackedStringArray("iron_node") instance=ExtResource("1_mkrts")]
 script = ExtResource("2_xqakx")
-digger_target_pos_x = 88.0
+digger_target_pos_x = 60.0
 is_dig = true
 is_norm_end = true
 is_up_end = false
@@ -2101,7 +2101,6 @@ iron_type = 3
 iron_node = NodePath("Body/BodyCorrect/IronNode")
 init_be_attack_status = 16
 sfx_enter_name = &"digger_zombie"
-head1_path = NodePath("Body/BodyCorrect/Head/Anim_head1")
 
 [node name="BodyCorrect" parent="Body" index="0"]
 position = Vector2(-47, -121)
@@ -2109,14 +2108,14 @@ position = Vector2(-47, -121)
 [node name="_ground" type="Sprite2D" parent="Body/BodyCorrect" index="0"]
 visible = false
 use_parent_material = true
-position = Vector2(-59.8, 90.1)
+position = Vector2(-1.8533094, 90.1)
 texture = ExtResource("3_wa1ir")
 centered = false
 
 [node name="Zombie_digger_innerarm_lower" type="Sprite2D" parent="Body/BodyCorrect" index="1"]
 use_parent_material = true
-position = Vector2(15.4575205, 65.95488)
-rotation = -0.045811396
+position = Vector2(15.4234915, 66.15905)
+rotation = -0.051750693
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("2_ttrtc")
 centered = false
@@ -2125,8 +2124,8 @@ centered = false
 
 [node name="Zombie_digger_pickaxe" type="Sprite2D" parent="Body/BodyCorrect/Zombie_digger_pickaxe" index="0"]
 use_parent_material = true
-position = Vector2(-11.227439, 67.852234)
-rotation = -0.04729394
+position = Vector2(-11.329524, 68.2946)
+rotation = -0.05442082
 scale = Vector2(0.799, 0.799)
 texture = ExtResource("3_ne28n")
 centered = false
@@ -2138,50 +2137,50 @@ centered = false
 
 [node name="Zombie_digger_innerarm_hand" type="Sprite2D" parent="Body/BodyCorrect" index="4"]
 use_parent_material = true
-position = Vector2(13.2, 84.05488)
-rotation = -0.009205234
+position = Vector2(13.2, 84.25905)
+rotation = -0.010986956
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("4_eevw8")
 centered = false
 
 [node name="Zombie_digger_innerarm_upper" type="Sprite2D" parent="Body/BodyCorrect" index="5"]
 use_parent_material = true
-position = Vector2(16.31504, 55.354877)
-rotation = -0.0246512
+position = Vector2(16.246984, 55.559048)
+rotation = -0.027620848
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("5_pi1i5")
 centered = false
 
 [node name="Zombie_digger_innerleg_foot" type="Sprite2D" parent="Body/BodyCorrect" index="6"]
 use_parent_material = true
-position = Vector2(20.54248, 107.31504)
-rotation = 0.021160198
+position = Vector2(20.576508, 107.24698)
+rotation = 0.024129847
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("6_oyy1s")
 centered = false
 
 [node name="Zombie_digger_innerleg_lower" type="Sprite2D" parent="Body/BodyCorrect" index="7"]
 use_parent_material = true
-position = Vector2(20.74248, 90.9)
-rotation = 0.021901468
+position = Vector2(20.776508, 90.9)
+rotation = 0.025464911
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("7_vummk")
 centered = false
 
 [node name="Zombie_digger_innerleg_upper" type="Sprite2D" parent="Body/BodyCorrect" index="8"]
 use_parent_material = true
-position = Vector2(22.85752, 78.56992)
-rotation = 0.07636203
+position = Vector2(22.823492, 78.70603)
+rotation = 0.07042307
 scale = Vector2(0.852, 0.92)
-skew = 6.1527658
+skew = 6.154549
 texture = ExtResource("8_tofxt")
 centered = false
 
 [node name="Zombie_digger_body" type="Sprite2D" parent="Body/BodyCorrect" index="9"]
 use_parent_material = true
-position = Vector2(17.387602, 32.2124)
-rotation = -0.015924199
-scale = Vector2(0.8048496, 0.8072744)
+position = Vector2(17.21746, 32.382538)
+rotation = -0.018893847
+scale = Vector2(0.80553013, 0.80829525)
 texture = ExtResource("9_6mp8v")
 centered = false
 
@@ -2190,8 +2189,8 @@ use_parent_material = true
 
 [node name="Anim_head1" type="Sprite2D" parent="Body/BodyCorrect/Head" index="0"]
 use_parent_material = true
-position = Vector2(0.20264246, 14.167276)
-rotation = -0.021639433
+position = Vector2(-0.035555556, 14.541588)
+rotation = -0.026390804
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("10_gv8ai")
 centered = false
@@ -2208,35 +2207,35 @@ centered = false
 
 [node name="Anim_head2" type="Sprite2D" parent="Body/BodyCorrect/Head" index="3"]
 use_parent_material = true
-position = Vector2(7.7300816, 47.82215)
-rotation = -0.040575396
+position = Vector2(7.5939684, 48.400635)
+rotation = -0.046514694
 scale = Vector2(0.8, 0.8)
-skew = 0.018936135
+skew = 0.020124199
 texture = ExtResource("11_mjmg8")
 centered = false
 
 [node name="Zombie_digger_outerleg_foot" type="Sprite2D" parent="Body/BodyCorrect" index="11"]
 use_parent_material = true
 position = Vector2(42, 117.6)
-rotation = -0.009205234
+rotation = -0.010986956
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("12_cheb5")
 centered = false
 
 [node name="Zombie_digger_outerleg_lower" type="Sprite2D" parent="Body/BodyCorrect" index="12"]
 use_parent_material = true
-position = Vector2(47.97256, 105.51504)
-rotation = -0.011692504
-scale = Vector2(0.8, 0.84464633)
-skew = -0.020156195
+position = Vector2(47.870476, 105.44698)
+rotation = -0.014068019
+scale = Vector2(0.8, 0.8507714)
+skew = -0.023719741
 texture = ExtResource("13_hpwbq")
 centered = false
 
 [node name="Zombie_digger_outerleg_upper" type="Sprite2D" parent="Body/BodyCorrect" index="13"]
 use_parent_material = true
-position = Vector2(39.8, 80.21504)
-rotation = 0.010951234
-skew = 0.015445095
+position = Vector2(39.8, 80.14698)
+rotation = 0.012732956
+skew = 0.016632887
 texture = ExtResource("14_xqakx")
 centered = false
 
@@ -2245,24 +2244,24 @@ use_parent_material = true
 
 [node name="Zombie_outerarm_hand" type="Sprite2D" parent="Body/BodyCorrect/LowerHand" index="0"]
 use_parent_material = true
-position = Vector2(30.18496, 86.72744)
-rotation = 0.07892671
-scale = Vector2(0.7985752, 0.7985752)
+position = Vector2(30.253016, 86.82952)
+rotation = 0.089022905
+scale = Vector2(0.7982349, 0.7982349)
 texture = ExtResource("15_eqp2h")
 centered = false
 
 [node name="Zombie_outerarm_lower" type="Sprite2D" parent="Body/BodyCorrect/LowerHand" index="1"]
 use_parent_material = true
-position = Vector2(33.4, 67.96992)
+position = Vector2(33.4, 68.10603)
 rotation = -0.003491
-scale = Vector2(0.8, 0.81112397)
+scale = Vector2(0.8, 0.8128254)
 texture = ExtResource("16_wa1ir")
 centered = false
 
 [node name="Zombie_digger_outerarm_upper" type="Sprite2D" parent="Body/BodyCorrect" index="15"]
 use_parent_material = true
-position = Vector2(34.50264, 41.697357)
-rotation = -0.040575396
+position = Vector2(34.264442, 41.935555)
+rotation = -0.046514694
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("17_sgrki")
 centered = false
@@ -2277,7 +2276,7 @@ use_parent_material = true
 
 [node name="Zombie_digger_hardhat" type="Sprite2D" parent="Body/BodyCorrect/Hardhat" index="0"]
 use_parent_material = true
-position = Vector2(-20.197357, 4.8247967)
+position = Vector2(-20.435556, 5.1650796)
 scale = Vector2(0.8, 0.8)
 texture = ExtResource("18_fo048")
 centered = false

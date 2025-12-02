@@ -20,8 +20,11 @@ var min_rotation_speed := 0.2  # 最小旋转速度
 var is_swimming := false
 var zombie: Zombie000Base
 
+func _ready() -> void:
+	if owner is Zombie000Base:
+		zombie = owner
 
-func _process(delta):
+func _physics_process(delta: float) -> void:
 	if is_active:
 		# 应用重力
 		velocity.y += gravity * delta
@@ -61,7 +64,6 @@ func _process(delta):
 
 func acitvate_it(control_x:float = 0):
 	drop_body = get_child(0)
-	zombie = owner
 	if control_x != 0:
 		velocity = Vector2(control_x, velocity.y)
 	is_active = true
@@ -71,8 +73,19 @@ func acitvate_it(control_x:float = 0):
 		is_swimming = true
 
 	var zombie_lane := Global.main_game.zombie_manager.all_zombie_rows[zombie.lane]
-	#GlobalUtils.child_node_change_parent(self, zombie_lane)
 	reparent(zombie_lane)
+
+## 被小推车推倒时
+func acitvate_it_on_ground(global_pos_x:float):
+	drop_body = get_child(0)
+	drop_body.global_position.x = global_pos_x
+	drop_body.position.y = 10
+	velocity = Vector2(randf_range(-50, -30),-500)
+	is_active = true
+	var zombie_lane := Global.main_game.zombie_manager.all_zombie_rows[zombie.lane]
+	reparent(zombie_lane)
+
+
 
 func fade_and_delete():
 	var tween = create_tween()

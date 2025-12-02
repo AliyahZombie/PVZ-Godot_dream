@@ -2,6 +2,16 @@ extends Bullet000Base
 class_name BulletLinear000Base
 ## 直线移动子弹基类
 
+## 对僵尸敌人造成伤害,直线类子弹重写
+func _attack_zombie(zombie:Zombie000Base):
+	## 从后面攻击僵尸的子弹，正常伤害类型子弹攻击类型修改为真实
+	if direction.x < 0 and bullet_mode == Global.AttackMode.Norm:
+		## 攻击敌人
+		zombie.be_attacked_bullet(attack_value, Global.AttackMode.Real, true, trigger_be_attack_sfx)
+	else:
+		## 攻击敌人
+		zombie.be_attacked_bullet(attack_value, bullet_mode, true, trigger_be_attack_sfx)
+
 
 func _physics_process(delta: float) -> void:
 	## 每帧移动子弹

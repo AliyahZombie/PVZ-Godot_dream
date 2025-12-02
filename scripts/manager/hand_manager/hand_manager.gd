@@ -5,6 +5,7 @@ class_name HandManager
 
 @onready var hm_character: HM_Character = $HM_Character
 @onready var hm_item: HM_Item = $HM_Item
+@onready var hm_null: HM_NUll = $HM_Null
 
 ## 手持管理器状态
 enum E_HandManagerStatus{
@@ -25,20 +26,20 @@ func _ready() -> void:
 	EventBus.subscribe("main_game_click_card", _click_card)
 	EventBus.subscribe("main_game_click_shovel", _click_shovel)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	match curr_hm_status:
 		E_HandManagerStatus.Null:
-			return
+			hm_null.null_process()
 		E_HandManagerStatus.Character:
 			hm_character.character_process()
 		E_HandManagerStatus.Item:
 			hm_item.item_process()
 
 ## 手持管理器状态改变
-func hm_status_change(ori_status:E_HandManagerStatus, new_status:E_HandManagerStatus):
+func hm_status_change(ori_status:E_HandManagerStatus, _new_status:E_HandManagerStatus):
 	match ori_status:
 		E_HandManagerStatus.Null:
-			return
+			hm_null.exit_status()
 		E_HandManagerStatus.Character:
 			hm_character.exit_status()
 		E_HandManagerStatus.Item:
@@ -70,7 +71,7 @@ func _click_shovel() -> void:
 func _on_click_cell(plant_cell:PlantCell):
 	match curr_hm_status:
 		E_HandManagerStatus.Null:
-			return
+			hm_null.click_cell(plant_cell)
 		E_HandManagerStatus.Character:
 			hm_character.click_cell(plant_cell)
 			curr_hm_status = E_HandManagerStatus.Null
@@ -83,7 +84,7 @@ func _on_cell_mouse_enter(plant_cell:PlantCell):
 	curr_plant_cell = plant_cell
 	match curr_hm_status:
 		E_HandManagerStatus.Null:
-			return
+			hm_null.mouse_enter(plant_cell)
 		E_HandManagerStatus.Character:
 			hm_character.mouse_enter(plant_cell)
 		E_HandManagerStatus.Item:
@@ -94,7 +95,7 @@ func _on_cell_mouse_exit(plant_cell:PlantCell):
 	curr_plant_cell = null
 	match curr_hm_status:
 		E_HandManagerStatus.Null:
-			return
+			hm_null.mouse_exit(plant_cell)
 		E_HandManagerStatus.Character:
 			hm_character.mouse_exit(plant_cell)
 		E_HandManagerStatus.Item:

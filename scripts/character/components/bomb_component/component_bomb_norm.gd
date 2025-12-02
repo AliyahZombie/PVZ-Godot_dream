@@ -19,15 +19,22 @@ func _bomb_all_enemy():
 			var plant:Plant000Base = area_owner as Plant000Base
 			if plant.curr_be_attack_status & can_attack_plant_status:
 				if not character_be_bomb.has(plant):
-					character_be_bomb.append(plant)
+					if judge_lane(plant):
+						character_be_bomb.append(plant)
 		if area_owner is Zombie000Base:
 			var zombie:Zombie000Base = area_owner as Zombie000Base
 			if zombie.curr_be_attack_status & can_attack_zombie_status:
 				if not character_be_bomb.has(zombie):
-					character_be_bomb.append(zombie)
+					if judge_lane(zombie):
+						character_be_bomb.append(zombie)
 		## 如果是梯子
 		if area_owner is Ladder:
-			area_owner.queue_free()
+			if bomb_lane == -1 or (owner.lane + bomb_lane >= area_owner.lane and owner.lane - bomb_lane <= area_owner.lane ):
+				area_owner.ladder_death()
 	for c:Character000Base in character_be_bomb:
 		if c is Zombie000Base:
 			c.be_bomb(bomb_value, is_cherry_bomb)
+
+
+func judge_lane(enemy:Character000Base) -> bool:
+	return bomb_lane == -1 or (owner.lane + bomb_lane >= enemy.lane and owner.lane - bomb_lane <= enemy.lane )

@@ -2,7 +2,7 @@ extends Node2D
 class_name Ladder
 
 @onready var iron_node: IronNode = $IronNode
-@onready var area_2d: Area2D = $Area2D
+@onready var area_2d_detect: Area2D = $Area2DDetect
 
 ## 梯子所属植物格子
 var plant_cell:PlantCell
@@ -10,13 +10,8 @@ var plant_cell:PlantCell
 var lane:int
 
 func _ready() -> void:
-	## 斜面与水平面的差值
-	var diff_slope_flat:float = 0
-	if is_instance_valid(plant_cell):
-		diff_slope_flat = plant_cell.position.y
-
-	if diff_slope_flat != 0:
-		area_2d.position.y -= diff_slope_flat
+	## 斜面时更新对应的检测位置
+	GlobalUtils.update_plant_cell_slope_y(plant_cell, area_2d_detect)
 
 ## 初始化梯子
 func init_ladder(curr_plant_cell:PlantCell):

@@ -82,4 +82,5 @@ func _on_check_box_8_toggled(toggled_on: bool) -> void:
 
 func _on_check_box_9_toggled(toggled_on: bool) -> void:
 	Global.plant_be_shovel_front = toggled_on
+	Global.save_config()
 

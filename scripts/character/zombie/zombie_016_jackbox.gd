@@ -6,6 +6,12 @@ class_name Zombie016Jackbox
 @export_group("动画状态")
 @export var is_pop:=false
 
+func ready_norm():
+	super()
+	## 罐子僵尸，直接爆炸
+	if is_pot_zombie:
+		_strigger_bomb()
+
 ## 初始化正常出战角色信号连接
 func ready_norm_signal_connect():
 	super()

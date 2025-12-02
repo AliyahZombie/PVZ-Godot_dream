@@ -28,41 +28,41 @@ func _physics_process(delta: float) -> void:
 	if first_attack_end:
 		## 如果超过第0行
 		if global_position.y < y_every_lane[0]:
-			bullet_lane = 0
+			lane = 0
 			_update_direction()
 		## 如果超过第最后一行
 		if global_position.y > y_every_lane[-1] + 5:
-			bullet_lane = y_every_lane.size() - 1
+			lane = y_every_lane.size() - 1
 			_update_direction()
 
 	## 如果到达目标行
-	if not in_curr_lane and (y_every_lane[bullet_lane] - 10 < global_position.y and global_position.y < y_every_lane[bullet_lane] + 10):
+	if not in_curr_lane and (y_every_lane[lane] - 10 < global_position.y and global_position.y < y_every_lane[lane] + 10):
 		## 查看是否有僵尸在攻击范围内
 		if curr_enemy:
 			## 如果僵尸在子弹攻击行
-			if bullet_lane == curr_enemy.lane:
+			if lane == curr_enemy.lane:
 				attack_once(curr_enemy)
 				_update_direction()
 		else:
 			in_curr_lane = true
 
 	## 移动离开当前行后，更新当前
-	if in_curr_lane and (y_every_lane[bullet_lane] - 10 > global_position.y or global_position.y > y_every_lane[bullet_lane] + 10):
+	if in_curr_lane and (y_every_lane[lane] - 10 > global_position.y or global_position.y > y_every_lane[lane] + 10):
 		in_curr_lane = false	# 修改当前行
-		update_z_index_and_lane(bullet_lane, int(bullet_lane + direction.y))
+		update_z_index_and_lane(lane, int(lane + direction.y))
 
 
 ## 更新图层
 @warning_ignore("unused_parameter")
 func update_z_index_and_lane(curr_lane:int, target_lane:int):
-	bullet_lane = target_lane
-	z_index = 50 * bullet_lane + 45
+	lane = target_lane
+	z_index = 50 * lane + 45
 
 ## 更新保龄球移动方向
 func _update_direction():
-	if bullet_lane == 0:
+	if lane == 0:
 		direction.y = 1
-	elif bullet_lane == y_every_lane.size() - 1:
+	elif lane == y_every_lane.size() - 1:
 		direction.y = -1
 	else:
 		if direction.y == 0:
@@ -70,7 +70,7 @@ func _update_direction():
 		else:
 			direction.y *= -1
 
-	update_z_index_and_lane(bullet_lane, int(bullet_lane + direction.y))
+	update_z_index_and_lane(lane, int(lane + direction.y))
 
 ## 子弹与敌人碰撞
 func _on_area_2d_attack_area_entered(area: Area2D) -> void:
@@ -88,9 +88,9 @@ func _on_area_2d_attack_area_entered(area: Area2D) -> void:
 		push_error("敌人不是植物,不是僵尸")
 	## 在当前行
 	if in_curr_lane:
-		print(bullet_lane, enemy.lane)
+		print(lane, enemy.lane)
 		## 如果僵尸在子弹攻击行
-		if bullet_lane == enemy.lane:
+		if lane == enemy.lane:
 			## 攻击后修改为不再当前行，并已攻击
 			in_curr_lane = false
 			attack_once(enemy)

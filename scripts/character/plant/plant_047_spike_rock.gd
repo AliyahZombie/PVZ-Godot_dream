@@ -30,6 +30,6 @@ func _attack_once():
 
 ## 被压扁
 ## [character:Character000Base] 发动攻击的角色
-func be_flattened(character:Character000Base):
+func be_flattened_from_enemy(character:Character000Base):
 	character.be_caltrop()
-	hp_component.Hp_loss(hp_component.max_hp/9, Global.AttackMode.Norm, true)
+	hp_component.Hp_loss(int(hp_component.max_hp/9.0), Global.AttackMode.Norm, true)

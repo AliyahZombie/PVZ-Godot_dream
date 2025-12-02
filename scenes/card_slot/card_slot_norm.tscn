@@ -656,7 +656,6 @@ card_plant_type = 999
 curr_card_gb = 2
 cool_time = 0.0
 sun_cost = 0
-is_initater = true
 
 [node name="CardBg" parent="CardSlotCandidate/ImitaterBG/CardImitater" index="0"]
 texture = ExtResource("15_v6er4")

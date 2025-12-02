@@ -11,6 +11,10 @@ class_name DropItemComponent
 @export var drop_coin_silver_glod_diamond_rate := [0.5,0.4,0.1]
 ## 掉落花园植物概率
 @export var drop_garden_plant_rate := 0.004
+## 掉落生产的偏移y值
+@export var correct_y:float=100
+## 金币移动的目标位置与初始位置的y的范围
+@export var target_move_y_range:Vector2 = Vector2(80, 90)
 
 #region 僵尸掉落
 ## 掉落金银钻
@@ -24,7 +28,8 @@ func drop_coin():
 	if r < drop_coin_rate:
 		Global.create_coin(drop_coin_silver_glod_diamond_rate,\
 		Vector2(clamp(global_position.x, 0, get_viewport().get_visible_rect().size.x),\
-		clamp(global_position.y-100, 0, get_viewport().get_visible_rect().size.y)))
+		clamp(global_position.y-correct_y, 0, get_viewport().get_visible_rect().size.y)),
+		Vector2(randf_range(-50, 50), randf_range(target_move_y_range.x, target_move_y_range.y)))
 
 ## 掉落花园植物
 func drop_garden_plant():

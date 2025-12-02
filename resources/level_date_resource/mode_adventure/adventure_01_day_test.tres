@@ -7,8 +7,12 @@
 script = ExtResource("1_0covv")
 max_wave = 20
 is_bungi = true
+is_seed_rain = true
 start_sun = 12810
-is_mode_column = true
+pre_choosed_card_list_zombie = Array[int]([4])
+all_card_plant_type_probability_seed_rain = Dictionary[int, int]({
+1003: 1
+})
 plant_cell_col_j = 7
 plant_cell_can_use = Dictionary[String, bool]({
 "left_can_plant": true,

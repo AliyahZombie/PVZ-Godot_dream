@@ -138,7 +138,7 @@ func be_flattened_body():
 	var body_copy = duplicate()
 	owner.get_parent().add_child(body_copy)
 	body_copy.copy_be_flattened()
-
+	body_copy.global_position = global_position
 
 ## 复制体被压扁,两秒后删除
 func copy_be_flattened():

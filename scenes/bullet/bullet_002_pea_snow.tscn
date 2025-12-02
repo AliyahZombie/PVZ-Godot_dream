@@ -89,8 +89,6 @@ script = ExtResource("2_pfv8q")
 time_be_decelerated = 3.0
 bullet_type = 2
 is_can_up = true
-bullet_up_plant_type = 23
-bullet_up_type = 1
 
 [node name="BulletBody" parent="Body" index="0"]
 texture = ExtResource("3_vwdsc")

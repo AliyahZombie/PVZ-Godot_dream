@@ -5,6 +5,8 @@ class_name BombComponentBase
 ## 爆炸检测区域检测敌人的受击检测框而不是受击真实框,角色移动y时,更新爆炸组件位置,更新检测框位置
 @onready var area_2d_bomb: Area2D = get_node_or_null("Area2DBomb")
 
+## 爆炸的行范围，-1 表示所有行，0表示当前行，1表示包含上下一行
+@export var bomb_lane:int=-1
 ## 爆炸伤害
 @export var bomb_value:int = 1800
 ## 是否为灰烬炸弹（非土豆雷）

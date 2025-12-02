@@ -10,9 +10,9 @@ func _on_bullet_attack_cd_timer_timeout() -> void:
 
 
 func set_cancel_attack():
-	animation_tree.set("parameters/OneShot/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT)
-	animation_tree.set("parameters/OneShot 2/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT)
-
+	#animation_tree.set("parameters/OneShot/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT)
+	#animation_tree.set("parameters/OneShot 2/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT)
+	pass
 
 ## 发射子弹（动画调用）
 func _shoot_bullet():

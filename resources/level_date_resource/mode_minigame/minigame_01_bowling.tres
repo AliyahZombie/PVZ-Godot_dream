@@ -20,8 +20,7 @@ all_card_plant_type_probability = Dictionary[int, int]({
 card_order_plant = Dictionary[int, int]({
 0: 1001,
 1: 1002,
-2: 1003,
-5: 1
+2: 1003
 })
 is_bowling_stripe = true
 plant_cell_can_use = Dictionary[String, bool]({

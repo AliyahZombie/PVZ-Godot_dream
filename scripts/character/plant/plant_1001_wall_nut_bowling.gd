@@ -16,7 +16,7 @@ func _launch_bowling():
 	var bullet:Bullet000Base = bowling_bullet_scene.instantiate()
 	var bullet_paras = {
 			Bullet000Base.E_InitParasAttr.BulletLane : lane,
-			Bullet000Base.E_InitParasAttr.Position :  bullets.to_local(global_position),
+			Bullet000Base.E_InitParasAttr.Position : bullets.to_local(global_position),
 		}
 	bullet.init_bullet(bullet_paras)
 	bullets.add_child(bullet)

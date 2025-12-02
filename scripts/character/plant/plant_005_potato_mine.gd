@@ -23,6 +23,9 @@ func ready_norm():
 	prepare_timer.wait_time = prepare_time
 	prepare_timer.start()
 
+	if is_zombie_mode:
+		prepare_timer.stop()
+		_on_prepare_timer_timeout()
 
 func ready_norm_signal_connect():
 	super()

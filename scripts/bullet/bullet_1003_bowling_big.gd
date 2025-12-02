@@ -7,8 +7,6 @@ class_name Bullet1003BowlingBig
 var rotation_speed = 5.0
 
 
-
-
 func _physics_process(delta: float) -> void:
 	super(delta)
 	body_correct.rotation += rotation_speed * delta

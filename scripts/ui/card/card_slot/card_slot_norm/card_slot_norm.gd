@@ -28,20 +28,27 @@ func init_card_slot_norm(game_para:ResourceLevelData):
 	if game_para.pre_choosed_card_list_plant or game_para.pre_choosed_card_list_zombie:
 		init_pre_choosed_card(game_para.pre_choosed_card_list_plant, game_para.pre_choosed_card_list_zombie)
 
-## 重选上次卡片
+# 重选上次卡片
 func _on_re_card_button_pressed() -> void:
 	Global.load_selected_cards()
-	var plant_type_selected = Global.selected_cards.get("Plant", [])
-	var zombie_type_selected = Global.selected_cards.get("Zombie", [])
-	for plant_type:Global.PlantType in plant_type_selected:
-		if card_slot_candidate.all_card_candidate_containers_plant[AllCards.plant_card_ids[plant_type]].card.is_choosed_pre_card:
-			#card_slot_candidate.all_card_candidate_containers_plant_imitater[AllCards.plant_card_ids[plant_type]].card._on_button_pressed()
-			continue
-		card_slot_candidate.all_card_candidate_containers_plant[AllCards.plant_card_ids[plant_type]].card._on_button_pressed()
-	for zombie_type:Global.ZombieType in zombie_type_selected:
-		if card_slot_candidate.all_card_candidate_containers_zombie[AllCards.zombie_card_ids[zombie_type]].card.is_choosed_pre_card:
-			continue
-		card_slot_candidate.all_card_candidate_containers_zombie[AllCards.zombie_card_ids[zombie_type]].card._on_button_pressed()
+	for card_type_data:Dictionary in Global.selected_cards:
+		if card_type_data.has("plant_type"):
+			var plant_type:Global.PlantType = card_type_data["plant_type"]
+			## 如果是模仿者
+			if card_type_data.get("is_imitater", false):
+				## 未选择模仿者时
+				if not card_slot_candidate.card_imitater.is_be_choosed_imitater:
+					card_slot_candidate.all_card_candidate_containers_plant_imitater[AllCards.plant_card_ids[plant_type]].card._on_button_pressed()
+			else:
+				if not card_slot_candidate.all_card_candidate_containers_plant[AllCards.plant_card_ids[plant_type]].card.is_choosed_pre_card:
+					card_slot_candidate.all_card_candidate_containers_plant[AllCards.plant_card_ids[plant_type]].card._on_button_pressed()
+
+		elif card_type_data.has("zombie_type"):
+			var zombie_type:Global.ZombieType = card_type_data["zombie_type"]
+			if not card_slot_candidate.all_card_candidate_containers_zombie[AllCards.zombie_card_ids[zombie_type]].card.is_choosed_pre_card:
+				card_slot_candidate.all_card_candidate_containers_zombie[AllCards.zombie_card_ids[zombie_type]].card._on_button_pressed()
+
+
 
 ## 取消所有已选卡片
 func _on_cancal_card_button_pressed() -> void:
@@ -55,13 +62,18 @@ func _on_texture_button_pressed() -> void:
 	#card_disconnect_click_in_choose()
 	## 保存上次选卡
 	Global.selected_cards.clear()
-	Global.selected_cards["Plant"] = []
-	Global.selected_cards["Zombie"] = []
 	for card:Card in card_slot_battle.curr_cards:
-		if card.card_plant_type == 0:
-			Global.selected_cards["Zombie"].append(card.card_zombie_type)
+		var card_type_data:={}
+		if card.card_plant_type != Global.PlantType.Null:
+			card_type_data["plant_type"] = card.card_plant_type
+			if card.is_imitater:
+				card_type_data["is_imitater"] = true
+		elif card.card_zombie_type != Global.ZombieType.Null:
+			card_type_data["zombie_type"] = card.card_zombie_type
 		else:
-			Global.selected_cards["Plant"].append(card.card_plant_type)
+			print("error:当前卡牌类型不为植物也不为僵尸")
+		Global.selected_cards.append(card_type_data)
+
 	Global.save_selected_cards()
 
 ## 初始化系统预选卡
@@ -170,7 +182,16 @@ func card_disconnect_click_in_choose():
 func pre_choosed_card(card:Card, target_parent):
 	target_parent.add_child(card)
 	card.position = Vector2.ZERO
-	card.card_change_cool_time(0)
+	#card.card_change_cool_time(0)
+
+	## 罐子模式下系统预选卡无冷却
+	if Global.main_game.game_para.is_pot_mode:
+		if card.card_plant_type != Global.PlantType.Null:
+			if Global.zero_cd_plnat_card_type_on_pot_mode.has(card.card_plant_type):
+				card.card_change_cool_time(0)
+		## 僵尸卡牌都无冷却
+		elif card.card_zombie_type != Global.ZombieType.Null:
+			card.card_change_cool_time(0)
 
 ### 预选卡隐藏对应待选卡槽的卡片(植物)
 #func disappear_card_slot_candidate_plant(plant_type):

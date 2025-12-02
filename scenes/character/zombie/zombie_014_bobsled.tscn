@@ -1,4 +1,4 @@
-[gd_scene load_steps=63 format=3 uid="uid://b8d5t24ffmpix"]
+[gd_scene load_steps=64 format=3 uid="uid://b8d5t24ffmpix"]
 
 [ext_resource type="PackedScene" uid="uid://cktksmdbn2nmn" path="res://scenes/character/zombie/zombie_000_base.tscn" id="1_lm26a"]
 [ext_resource type="Script" uid="uid://d8stg7p2wiw4" path="res://scripts/character/zombie/zombie_014_bobsled.gd" id="2_2l04k"]
@@ -23,6 +23,7 @@
 [ext_resource type="Texture2D" uid="uid://6rywuj0daeb0" path="res://assets/reanim/Zombie_bobsled_outerarm_hand2.png" id="18_m6b3o"]
 [ext_resource type="Texture2D" uid="uid://bmlrbmgapvcwf" path="res://assets/reanim/Zombie_bobsled1.png" id="20_iok4y"]
 [ext_resource type="Texture2D" uid="uid://dsmqlevppxh3t" path="res://assets/reanim/Zombie_bobsled_outerarm_hand.png" id="22_yqynq"]
+[ext_resource type="PackedScene" uid="uid://ds30bt2f2bdfi" path="res://scenes/character/components/zombie_death_bomb.tscn" id="24_csye1"]
 [ext_resource type="Script" uid="uid://v3j222nn2juj" path="res://scripts/character/components/anim_component/component_anim_bobsled.gd" id="24_lm26a"]
 [ext_resource type="Texture2D" uid="uid://xvpvxtsj2yew" path="res://assets/reanim/Ground.png" id="24_wpsn6"]
 [ext_resource type="Script" uid="uid://jl0nl4a234bc" path="res://scripts/resources/resource_body_change.gd" id="25_yqynq"]
@@ -9863,7 +9864,9 @@ playback_default_blend_time = 0.2
 [node name="Body" parent="." index="5"]
 position = Vector2(-7, 0)
 
-[node name="BodyCorrect" parent="Body" index="0"]
+[node name="ZombieDeathBomb" parent="Body" index="0" instance=ExtResource("24_csye1")]
+
+[node name="BodyCorrect" parent="Body" index="1"]
 position = Vector2(-42, -128)
 
 [node name="_ground" type="Sprite2D" parent="Body/BodyCorrect" index="0"]
@@ -9980,7 +9983,7 @@ scale = Vector2(0.8, 0.8)
 texture = ExtResource("18_27m1y")
 centered = false
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Body" index="1"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Body" index="2"]
 root_node = NodePath("../..")
 callback_mode_method = 1
 libraries = {

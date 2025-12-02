@@ -89,5 +89,5 @@ func judge_special_plants_condition(plant_cell:PlantCell) -> bool:
 		return _judge_special_plants_condition(plant_cell)
 
 ## 特殊植物种植函数判断是否可以种植，特殊植物重写,如墓碑吞噬者，咖啡豆等
-func _judge_special_plants_condition(plant_cell) -> bool:
+func _judge_special_plants_condition(_plant_cell) -> bool:
 	return true

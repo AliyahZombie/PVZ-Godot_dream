@@ -36,7 +36,7 @@ func init_pre_choosed_card(card_type_list:Array[Global.PlantType], card_type_lis
 func pre_choosed_card(card:Card, target_parent):
 	target_parent.add_child(card)
 	card.position = Vector2.ZERO
-	card.card_change_cool_time(0)
+	#card.card_change_cool_time(0)
 
 ## 移动卡槽（出现或隐藏）
 func move_card_slot_candidate(is_appeal:bool):

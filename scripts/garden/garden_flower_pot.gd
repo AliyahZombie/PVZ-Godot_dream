@@ -33,6 +33,6 @@ func plant_change_profect(is_profect:bool):
 		pot_glow.visible = false
 		pot_glow_2.visible = false
 
-func update_body_visible(is_visible:bool = true):
-	body.visible = is_visible
-	animation_tree.active = is_visible
+func update_body_visible(curr_is_visible:bool = true):
+	body.visible = curr_is_visible
+	animation_tree.active = curr_is_visible

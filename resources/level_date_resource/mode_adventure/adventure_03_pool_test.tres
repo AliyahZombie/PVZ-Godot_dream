@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ResourceLevelData" load_steps=3 format=3 uid="uid://bw5m4wyshmv8w"]
+[gd_resource type="Resource" script_class="ResourceLevelData" load_steps=3 format=3 uid="uid://hpafnr0nr8df"]
 
 [ext_resource type="Script" uid="uid://bke3sg5otco7s" path="res://scripts/resources/level/pre_plant_in_level.gd" id="1_bgxpd"]
 [ext_resource type="Script" uid="uid://bjt3l56exxmdw" path="res://scripts/resources/level/level_data.gd" id="1_bme8i"]
@@ -6,14 +6,9 @@
 [resource]
 script = ExtResource("1_bme8i")
 game_sences = 1
-game_round = 3
 game_BG = 2
 game_BGM = 2
 max_wave = 10
 zombie_refresh_types = Array[int]([1])
-is_bungi = true
-range_num_bungi = Vector2i(30, 50)
-start_sun = 10955
-pre_choosed_card_list_plant = Array[int]([21, 17])
-is_mode_column = true
+start_sun = 4250
 metadata/_custom_type_script = "uid://bjt3l56exxmdw"

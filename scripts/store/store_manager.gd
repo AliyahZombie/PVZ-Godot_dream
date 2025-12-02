@@ -1,15 +1,19 @@
-extends CanvasLayer
+extends Control
 class_name StoreManager
-## 商店场景不是新场景，而是创建新的商店场景节点覆盖原始场景
 
 @onready var crazy_dave: CrazyDave = $CrazyDave
 @export var all_goods :Array[Goods]
-@onready var canvas_layer_confirm_goods: ConfirmGoods = $CanvasLayerConfirmGoods
 @onready var coin_bank_bank: CoinBankLabel = $CoinBankLabel
+@onready var confirm_goods: ConfirmGoods = $ConfirmGoods
+
 ## 原始金币label
 var ori_coin_value_label
+## 离开商店页信号
+signal siganl_exit_store
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	Global.save_global_game_data()
 	if is_instance_valid(Global.coin_value_label):
 		ori_coin_value_label = Global.coin_value_label
 		Global.coin_value_label = coin_bank_bank
@@ -18,12 +22,18 @@ func _ready() -> void:
 		goods.look_goods_signal.connect(crazy_dave.external_trigger_dialog)
 		goods.look_end_goods_signal.connect(crazy_dave.external_trigger_dialog_end)
 		## 确认购买页面
-		goods.signal_pressed_this_goods.connect(canvas_layer_confirm_goods.appear_canvas_layer.bind(goods))
+		goods.signal_pressed_this_goods.connect(confirm_goods.appear_canvas_layer.bind(goods))
 
 ## 离开商店
 func _on_store_main_menu_button_pressed() -> void:
+	siganl_exit_store.emit()
+	Global.save_global_game_data()
 	if is_instance_valid(ori_coin_value_label):
 		Global.coin_value_label = ori_coin_value_label
 		Global.coin_value_label.update_label()
-	Global.exit_store()
+
+	if get_tree().current_scene == self:
+		get_tree().change_scene_to_file(Global.MainScenesMap[Global.MainScenes.StartMenu])
+	else:
+		queue_free()
 

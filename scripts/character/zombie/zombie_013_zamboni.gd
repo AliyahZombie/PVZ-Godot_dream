@@ -36,7 +36,7 @@ func ready_show():
 	move_component.disable_component(ComponentNormBase.E_IsEnableFactor.InitType)
 	zombie_last_x = global_position.x
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	zombie_curr_x = global_position.x
 	if zombie_curr_x != zombie_last_x and is_instance_valid(ice_road):
 		ice_road.expand_size(zombie_last_x - zombie_curr_x)

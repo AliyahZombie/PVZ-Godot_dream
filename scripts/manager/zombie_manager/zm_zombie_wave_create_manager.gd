@@ -2,7 +2,14 @@ extends Node
 ## 僵尸波次生成管理器
 class_name ZombieWaveCreateManager
 
+#region 波次生成僵尸管理器参数
+## 出怪倍率
+var zombie_multy := 1
+## 蹦极僵尸数量范围
+var range_num_bungi:Vector2i = Vector2i(3,5)
+#endregion
 @onready var zombie_manager: ZombieManager = %ZombieManager
+
 ## 僵尸选行系统
 @onready var zombie_choose_row_system: ZombieChooseRowSystem = %ZombieChooseRowSystem
 
@@ -26,7 +33,7 @@ const zombie_power = {
 	Global.ZombieType.Z015Dolphinrider: 3,# 海豚僵尸
 
 	Global.ZombieType.Z016Jackbox: 3,		# 小丑
-	Global.ZombieType.Z017Ballon: 2,		# 气球
+	Global.ZombieType.Z017Balloon: 2,		# 气球
 	Global.ZombieType.Z018Digger: 4,		# 矿工
 	Global.ZombieType.Z019Pogo: 4,			# 跳跳
 	Global.ZombieType.Z020Yeti: 4,			# 雪人
@@ -57,7 +64,7 @@ const zombie_weights = {
 	Global.ZombieType.Z015Dolphinrider: 1500,	# 海豚僵尸
 
 	Global.ZombieType.Z016Jackbox: 1000,		# 小丑
-	Global.ZombieType.Z017Ballon: 2000,		# 气球
+	Global.ZombieType.Z017Balloon: 2000,		# 气球
 	Global.ZombieType.Z018Digger: 1000,		# 矿工
 	Global.ZombieType.Z019Pogo: 1000,			# 跳跳
 	Global.ZombieType.Z020Yeti: 1,			# 雪人
@@ -73,36 +80,26 @@ var zombie_choose_random_pool:RandomPicker
 
 ## 每波最大僵尸数量
 @export var max_zombies_per_wave = 50
-## 出怪倍率
-var zombie_multy := 1
-## 僵尸刷新类型
-var zombie_refresh_types:Array[Global.ZombieType]
 ## 刷新类型最小战力
 var min_power:=100
 ## 当前所有可能出怪僵尸权重上限和,每波修改
 var curr_zombie_weight_upper_limit :int
 ## 当前波次生成的僵尸
 var wave_all_zombies:Array[Zombie000Base]
-## 是否有蹦极僵尸
-var is_bungi:bool = false
-## 蹦极僵尸数量范围
-var range_num_bungi:Vector2i = Vector2i(3,5)
 
 ## 初始化创建波次僵尸管理器
 func init_zombie_wave_create_manager(game_para:ResourceLevelData):
-	self.zombie_multy = game_para.zombie_multy
-	self.range_num_bungi = game_para.range_num_bungi
+	zombie_multy = game_para.zombie_multy
+	range_num_bungi = game_para.range_num_bungi
 	zombie_choose_row_system.init_zombie_choose_row_system()
-	update_zombie_refresh_types(game_para.zombie_refresh_types, game_para.is_bungi)
+	update_zombie_refresh_types()
 
 ## 更新可以刷新的僵尸列表
-func update_zombie_refresh_types(new_zombie_refresh_types:Array[Global.ZombieType], new_is_bungi:=false):
-	self.is_bungi = new_is_bungi
-	self.zombie_refresh_types = new_zombie_refresh_types
+func update_zombie_refresh_types():
 	## 初始化僵尸生成随机池数据
 	var zombie_choose_random_pool_data:Array[Array] = []
 	min_power = 100
-	for zombie_type in self.zombie_refresh_types:
+	for zombie_type in zombie_manager.zombie_refresh_types:
 		if min_power > zombie_power[zombie_type]:
 			min_power = zombie_power[zombie_type]
 		zombie_choose_random_pool_data.append([zombie_type, zombie_weights[zombie_type]])
@@ -128,7 +125,7 @@ func create_curr_wave_all_zombies(wave:int, is_big_wave:bool):
 		if zombie_type == Global.ZombieType.Z014Bobsled:
 			## 计算冰道权重
 			if special_base_weight.is_empty():
-				for row_ice_road:Array[IceRoad] in Global.main_game.zombie_manager.all_ice_roads:
+				for row_ice_road:Array[IceRoad] in zombie_manager.all_ice_roads:
 					if row_ice_road.is_empty():
 						special_base_weight.append(0)
 					else:
@@ -171,8 +168,8 @@ func wave_create_zombie(
 		Zombie000Base.E_ZInitAttr.Lane:lane,
 		Zombie000Base.E_ZInitAttr.CurrWave:curr_wave,
 	}
-	var zombie_parent = Global.main_game.zombie_manager.all_zombie_rows[lane]
-	var zombie_glo_pos = Global.main_game.zombie_manager.all_zombie_rows[lane].zombie_create_position.global_position + Vector2(randf_range(-10, 10), 0)
+	var zombie_parent = zombie_manager.all_zombie_rows[lane]
+	var zombie_glo_pos = zombie_manager.all_zombie_rows[lane].zombie_create_position.global_position + Vector2(randf_range(-10, 10), 0)
 
 	var zombie = zombie_manager.create_norm_zombie(zombie_type,zombie_parent,zombie_init_para, zombie_glo_pos, init_zombie_special)
 
@@ -208,7 +205,7 @@ func update_curr_zombie_weight_upper_limit(wave:int):
 	if wave == 0:
 		curr_zombie_weight_upper_limit = 0
 		# 计算所有可能僵尸的权重总和
-		for zombie_type in zombie_refresh_types:
+		for zombie_type in zombie_manager.zombie_refresh_types:
 			curr_zombie_weight_upper_limit += zombie_weights[zombie_type]
 	elif wave < 4:
 		pass
@@ -216,7 +213,7 @@ func update_curr_zombie_weight_upper_limit(wave:int):
 		_update_weights(wave)
 		curr_zombie_weight_upper_limit = 0
 		# 计算所有可能僵尸的权重总和
-		for zombie_type in zombie_refresh_types:
+		for zombie_type in zombie_manager.zombie_refresh_types:
 			curr_zombie_weight_upper_limit += zombie_weights[zombie_type]
 	else:
 		pass
@@ -224,11 +221,11 @@ func update_curr_zombie_weight_upper_limit(wave:int):
 ## 更新僵尸权重
 func _update_weights(wave: int):
 	if wave < 25 and wave >= 5:
-		if Global.ZombieType.Z001Norm in zombie_refresh_types:
+		if Global.ZombieType.Z001Norm in zombie_manager.zombie_refresh_types:
 			var norm_weight = 4000 - (wave - 4) * 180
 			zombie_choose_random_pool.update_item_weight(Global.ZombieType.Z001Norm, norm_weight, false)
 
-		if Global.ZombieType.Z003Cone in zombie_refresh_types:
+		if Global.ZombieType.Z003Cone in zombie_manager.zombie_refresh_types:
 			var cone_weight = 4000 - (wave - 4) * 150
 			zombie_choose_random_pool.update_item_weight(Global.ZombieType.Z003Cone, cone_weight, false)
 
@@ -241,7 +238,7 @@ func get_curr_wave_zombie_list(wave:int, is_big_wave: bool, curr_wave_power_limi
 	## 目前总战力
 	var total_power = 0
 	## 当前空隙位置
-	var curr_spare_slot = self.max_zombies_per_wave
+	var curr_spare_slot = max_zombies_per_wave
 
 	## 如果是大波，先刷新特殊僵尸
 	if is_big_wave:
@@ -297,18 +294,21 @@ func get_curr_wave_zombie_list(wave:int, is_big_wave: bool, curr_wave_power_limi
 func spawn_special_zombie_in_big_wave(is_final:=false):
 	## 珊瑚僵尸,若有水路自动创建,没有则不创建
 	if is_final:
-		#print("生成珊瑚僵尸")
-		spawn_sea_weed_zombies()
+		if not zombie_manager.is_ice:
+			print("生成珊瑚僵尸")
+			spawn_sea_weed_zombies()
+		else:
+			print("被冰冻无法生成珊瑚僵尸")
 	## 如果有蹦极僵尸
-	if is_bungi:
+	if zombie_manager.is_bungi:
 		spawn_bungi_zombies()
 
 #region 珊瑚僵尸
 ## 最后一大波珊瑚僵尸
 func spawn_sea_weed_zombies():
 	var zombie_row_pool_i :Array[int]
-	for i in range(Global.main_game.zombie_manager.all_zombie_rows.size()):
-		if Global.main_game.zombie_manager.all_zombie_rows[i].zombie_row_type == Global.ZombieRowType.Pool:
+	for i in range(zombie_manager.all_zombie_rows.size()):
+		if zombie_manager.all_zombie_rows[i].zombie_row_type == Global.ZombieRowType.Pool:
 			zombie_row_pool_i.append(i)
 	if zombie_row_pool_i.is_empty():
 		print("无水路,无法生成珊瑚僵尸")
@@ -332,7 +332,7 @@ func _zombie_seaweed(z:Zombie001Norm):
 func spawn_bungi_zombies():
 	## 选择plant_cell
 	var num_bungi_rand:int = randi_range(range_num_bungi.x, range_num_bungi.y)
-	var all_cell_have_plant:Array[PlantCell] = Global.main_game.plant_cell_manager.get_cell_have_plant()
+	var all_cell_have_plant:Array[PlantCell] = zombie_manager.main_game.plant_cell_manager.get_cell_have_plant()
 	var num_bungi_res:int = min(num_bungi_rand, all_cell_have_plant.size())
 	## 打乱顺序
 	all_cell_have_plant.shuffle()
@@ -345,19 +345,15 @@ func spawn_bungi_zombies():
 			Zombie000Base.E_ZInitAttr.Lane:plant_cell.row_col.x
 		}
 
-		Global.main_game.zombie_manager.create_norm_zombie(
+		zombie_manager.create_norm_zombie(
 			Global.ZombieType.Z021Bungi,
-			Global.main_game.zombie_manager.all_zombie_rows[plant_cell.row_col.x],
+			zombie_manager.all_zombie_rows[plant_cell.row_col.x],
 			zombie_init_para,
 			Vector2(plant_cell.global_position.x + plant_cell.size.x/2,
-				Global.main_game.zombie_manager.all_zombie_rows[plant_cell.row_col.x].zombie_create_position.global_position.y
+				zombie_manager.all_zombie_rows[plant_cell.row_col.x].zombie_create_position.global_position.y
 			),
-			create_bungi.bind(plant_cell)
+			GlobalUtils.create_bungi.bind(plant_cell)
 		)
-
-## 蹦极僵尸特殊函数
-func create_bungi(zombie_bungi:Zombie021Bungi, plant_cell:PlantCell):
-	zombie_bungi.plant_cell = plant_cell
 
 #endregion
 

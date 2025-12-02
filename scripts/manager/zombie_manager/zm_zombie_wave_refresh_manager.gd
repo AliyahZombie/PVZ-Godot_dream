@@ -11,6 +11,8 @@ class_name ZombieWaveRefreshManager
 	触发提前刷新时需要当前波次已经开始 time_min_wave(6.0) 秒
 """
 
+@onready var zombie_manager: ZombieManager = %ZombieManager
+
 ## 正常刷新计时器
 @onready var wave_norm_refresh_timer: Timer = $WaveNormRefreshTimer
 ## 波次最小时间计时器
@@ -67,9 +69,6 @@ func _ready() -> void:
 	wave_min_time_timer.wait_time = time_min_wave
 
 
-func init_zombie_wave_refresh_manager():
-	pass
-
 ## 每次刷新僵尸后获取当前波次生成僵尸血量值
 func update_wave_health_data(curr_wave_total_health:int, new_curr_wave_type:ZombieWaveManager.E_WaveType, new_curr_wave:int):
 	self.curr_wave_type = new_curr_wave_type
@@ -120,7 +119,7 @@ func judge_half_refresh(all_loss_hp:int, wave:int):
 	if wave == curr_wave and curr_can_refresh_type == E_RefreshType.HalfRefresh:
 		wave_current_health -= all_loss_hp
 
-		if wave_current_health <= refresh_health or Global.main_game.zombie_manager.curr_zombie_num <= 0:
+		if wave_current_health <= refresh_health or zombie_manager.curr_zombie_num <= 0:
 			_trigger_refresh()
 
 ## 判断全部死亡刷新

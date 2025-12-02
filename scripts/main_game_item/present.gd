@@ -37,7 +37,7 @@ func _on_texture_button_pressed() -> void:
 	Global.curr_num_new_garden_plant += 1
 	gpu_particles_2d.emitting = true
 
-	Global.save_game_data()
+	Global.save_global_game_data()
 
 	await gpu_particles_2d.finished
 	queue_free()

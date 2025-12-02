@@ -35,7 +35,7 @@ func owner_update_speed(speed_product:float):
 func update_attack_value(value:float, influence_factor:E_AttackValueFactor):
 	attack_value_factor[influence_factor] = value
 	var res_product = GlobalUtils.get_dic_product(attack_value_factor)
-	curr_attack_value_per_min = init_attack_value_per_min * res_product
+	curr_attack_value_per_min = int(init_attack_value_per_min * res_product)
 
 func _physics_process(delta: float) -> void:
 	if is_enabling and is_attack_res:
@@ -43,13 +43,17 @@ func _physics_process(delta: float) -> void:
 		if not is_instance_valid(detect_component.enemy_can_be_attacked):
 			return
 		if frame_counter==0 and is_instance_valid(detect_component.enemy_can_be_attacked):
-			detect_component.enemy_can_be_attacked.be_zombie_eat(curr_attack_value_per_min * delta * 8, owner)
+			detect_component.enemy_can_be_attacked.be_zombie_eat(int(curr_attack_value_per_min * delta * 8), owner)
 
 
 ## 攻击一次发亮，动画调用
 func attack_once():
 	if is_instance_valid(detect_component.enemy_can_be_attacked) and not owner.is_death:
 		detect_component.enemy_can_be_attacked.be_zombie_eat_once(owner)
+		SoundManager.play_character_SFX("Chomp")
+	elif is_instance_valid(detect_component.brain):
+		#detect_component = detect_component as DetectComponentZombie
+		detect_component.brain.be_attack_once(25)
 		SoundManager.play_character_SFX("Chomp")
 
 

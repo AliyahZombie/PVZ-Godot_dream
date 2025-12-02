@@ -35,7 +35,7 @@ var start_pos: Vector2
 @export var default_is_activate_lane:=true
 var is_activate_lane:bool
 ## 子弹行属性
-var bullet_lane :int = -1
+var lane :int = -1
 @export_subgroup("子弹音效相关")
 ## 是否触发受击音效(火焰豌豆就不触发)
 @export var trigger_be_attack_sfx := true
@@ -79,22 +79,22 @@ enum E_InitParasAttr{
 func init_bullet(bullet_paras:Dictionary):
 	## 子弹行
 	self.is_activate_lane = bullet_paras.get(E_InitParasAttr.IsActivateLane, true)
-	self.bullet_lane = bullet_paras.get(E_InitParasAttr.BulletLane, -1)
-	z_index = self.bullet_lane * 50 + 45
+	self.lane = bullet_paras.get(E_InitParasAttr.BulletLane, -1)
+	z_index = self.lane * 50 + 45
 
 	self.start_pos = bullet_paras.get(E_InitParasAttr.Position, Vector2.ZERO)
 	position = self.start_pos
 
 	self.direction = bullet_paras.get(E_InitParasAttr.Direction, Vector2.RIGHT)
-	self.can_attack_plant_status = bullet_paras.get(E_InitParasAttr.CanAttackPlantState, 1)
-	self.can_attack_zombie_status = bullet_paras.get(E_InitParasAttr.CanAttackZombieState, 1)
+	self.can_attack_plant_status = bullet_paras.get(E_InitParasAttr.CanAttackPlantState, can_attack_plant_status)
+	self.can_attack_zombie_status = bullet_paras.get(E_InitParasAttr.CanAttackZombieState, can_attack_zombie_status)
 
 
 ## 获取子弹属性
 func get_bullet_paras()->Dictionary[E_InitParasAttr,Variant]:
 	return {
 		E_InitParasAttr.IsActivateLane : self.is_activate_lane,
-		E_InitParasAttr.BulletLane : self.bullet_lane,
+		E_InitParasAttr.BulletLane : self.lane,
 		E_InitParasAttr.Position : position,
 		E_InitParasAttr.Direction : self.direction,
 		E_InitParasAttr.CanAttackPlantState : self.can_attack_plant_status,
@@ -103,9 +103,6 @@ func get_bullet_paras()->Dictionary[E_InitParasAttr,Variant]:
 
 ## 子弹与敌人碰撞
 func _on_area_2d_attack_area_entered(area: Area2D) -> void:
-	## 如果碰撞到世界层,跳过
-	if area.collision_layer == 1:
-		return
 	var enemy:Character000Base = area.owner
 	## TODO:攻击植物子弹
 	if enemy is Plant000Base:
@@ -114,6 +111,7 @@ func _on_area_2d_attack_area_entered(area: Area2D) -> void:
 	elif enemy is Zombie000Base:
 		## 如果不是可攻击状态敌人
 		if not enemy.curr_be_attack_status & can_attack_zombie_status:
+			print("敌人状态：", enemy.curr_be_attack_status, "可以攻击敌人状态：", can_attack_zombie_status)
 			return
 	else:
 		push_error("敌人不是植物,不是僵尸")
@@ -121,7 +119,7 @@ func _on_area_2d_attack_area_entered(area: Area2D) -> void:
 	if max_attack_num != -1 and curr_attack_num < max_attack_num:
 		## 如果子弹有行属性
 		if is_activate_lane:
-			if bullet_lane == enemy.lane:
+			if lane == enemy.lane:
 				attack_once(enemy)
 		else:
 			attack_once(enemy)
@@ -133,12 +131,22 @@ func _on_area_2d_attack_area_entered(area: Area2D) -> void:
 ## 对敌人造成伤害
 func _attack_enemy(enemy:Character000Base):
 	if enemy is Zombie000Base:
-		## 攻击敌人
-		enemy.be_attacked_bullet(attack_value, bullet_mode, true, trigger_be_attack_sfx)
+		_attack_zombie(enemy)
 	elif enemy is Plant000Base:
-		enemy = get_first_be_hit_plant_in_cell(enemy)
-		## 攻击敌人
-		enemy.be_attacked_bullet(attack_value, bullet_mode, true, trigger_be_attack_sfx)
+		_attack_plant(enemy)
+
+## 对僵尸敌人造成伤害,直线类子弹重写
+func _attack_zombie(zombie:Zombie000Base):
+	## 攻击敌人
+	zombie.be_attacked_bullet(attack_value, bullet_mode, true, trigger_be_attack_sfx)
+
+
+## 对植物敌人造成伤害
+func _attack_plant(plant:Plant000Base):
+	plant = get_first_be_hit_plant_in_cell(plant)
+	## 攻击敌人
+	plant.be_attacked_bullet(attack_value, bullet_mode, true, trigger_be_attack_sfx)
+
 
 ## 直线子弹先对壳类进行攻击
 ## 抛物线子弹先对Norm进行攻击
@@ -151,13 +159,14 @@ func attack_once(enemy:Character000Base):
 	if max_attack_num != -1 and curr_attack_num > max_attack_num:
 		return
 	## 对敌人造成伤害
-	if enemy != null:
-		_attack_enemy(enemy)
-		## 是否有音效
-		if type_bullet_SFX != SoundManagerClass.TypeBulletSFX.Null:
-			SoundManager.play_bullet_attack_SFX(type_bullet_SFX)
+	_attack_enemy(enemy)
+	## 是否有音效
+	if type_bullet_SFX != SoundManagerClass.TypeBulletSFX.Null:
+		SoundManager.play_bullet_attack_SFX(type_bullet_SFX)
 	## 如果有子弹特效
 	if bullet_effect.is_bullet_effect:
+		if enemy is Character000Base:
+			bullet_effect.global_position.x = enemy.hurt_box_component.global_position.x
 		bullet_effect.activate_bullet_effect()
 
 	## 判断是否进入删除队列

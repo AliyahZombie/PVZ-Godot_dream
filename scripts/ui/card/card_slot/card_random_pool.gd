@@ -55,3 +55,15 @@ func get_random_card() -> Card:
 	else:
 		var card_zombie_type = card_choose_random_pool_zombie.get_random_item()
 		return AllCards.all_zombie_card_prefabs[card_zombie_type]
+
+func get_random_card_info() -> Dictionary:
+	var rand_val = randi_range(1, total_prob)
+	## 植物卡片
+	if rand_val <= total_prob_plant:
+		var card_plant_type = card_choose_random_pool_plant.get_random_item()
+		return {"plant_type": card_plant_type,"zombie_type": Global.ZombieType.Null}
+	else:
+		var card_zombie_type = card_choose_random_pool_zombie.get_random_item()
+		return {"plant_type": Global.PlantType.Null, "zombie_type": card_zombie_type}
+
+

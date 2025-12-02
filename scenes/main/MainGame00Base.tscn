@@ -1,13 +1,13 @@
-[gd_scene load_steps=65 format=3 uid="uid://b2soejmoqi7wd"]
+[gd_scene load_steps=69 format=3 uid="uid://b2soejmoqi7wd"]
 
 [ext_resource type="Script" uid="uid://c7dr2016dfdoo" path="res://scripts/manager/main_game_manager.gd" id="1_7dde3"]
-[ext_resource type="AudioStream" uid="uid://duvijencyf7mi" path="res://assets/audio/BGM/choose_card.mp3" id="2_8fvtd"]
 [ext_resource type="Script" uid="uid://b2rst408m72au" path="res://scripts/manager/hand_manager/hand_manager.gd" id="3_acpf0"]
 [ext_resource type="Script" uid="uid://duphb7sb466c0" path="res://scripts/manager/hand_manager/hm_character.gd" id="4_ee3wa"]
 [ext_resource type="Texture2D" uid="uid://dh1c6v7dpaxmd" path="res://assets/image/ui/ui_card/Shovel.png" id="4_w5iw5"]
 [ext_resource type="Script" uid="uid://wbd5do6m44f2" path="res://scripts/manager/hand_manager/hm_item.gd" id="5_3d12c"]
 [ext_resource type="Script" uid="uid://cdcjkojcv1r2v" path="res://scripts/manager/zombie_manager/zombie_manager.gd" id="5_j3aa3"]
 [ext_resource type="Script" uid="uid://bwla64adrag6e" path="res://scripts/manager/zombie_manager/zm_zombie_wave_manager.gd" id="5_qfhda"]
+[ext_resource type="Script" uid="uid://citpddyythruu" path="res://scripts/manager/hand_manager/hm_null.gd" id="6_du5qn"]
 [ext_resource type="Script" uid="uid://bkwrkp13gfh6e" path="res://scripts/manager/zombie_manager/zm_zombie_wave_refresh_manager.gd" id="6_ee3wa"]
 [ext_resource type="Script" uid="uid://ba811qtwbkyd0" path="res://scripts/manager/zombie_manager/zm_zombie_wave_create_manager.gd" id="7_3d12c"]
 [ext_resource type="Script" uid="uid://dqus20puuxano" path="res://scripts/manager/zombie_manager/zm_zombie_show_in_start.gd" id="8_ha6fd"]
@@ -28,6 +28,7 @@
 [ext_resource type="Texture2D" uid="uid://d4bxwn6mmndtj" path="res://assets/image/background/background4_gameover_interior_overlay.png" id="19_470oe"]
 [ext_resource type="Script" uid="uid://lmskm3crn773" path="res://scripts/manager/day_suns_manager.gd" id="19_a514a"]
 [ext_resource type="Texture2D" uid="uid://bcv81qevn5hpt" path="res://assets/image/ui/ui_remind_word/StartPlant.png" id="20_2b7lk"]
+[ext_resource type="Script" uid="uid://c7icgyhar4pfl" path="res://scripts/manager/zombie_mode_manager.gd" id="20_27j16"]
 [ext_resource type="Texture2D" uid="uid://uh50cdkqdl67" path="res://assets/image/background/background1.jpg" id="20_ifnc6"]
 [ext_resource type="Texture2D" uid="uid://c4jwi8yjt7hmd" path="res://assets/image/ui/ui_remind_word/Approaching.png" id="21_48j6u"]
 [ext_resource type="Texture2D" uid="uid://bp2ironyexkgp" path="res://assets/image/ui/ui_remind_word/FinalWave.png" id="22_httmh"]
@@ -55,6 +56,8 @@
 [ext_resource type="Script" uid="uid://bw0stsbito4w" path="res://scripts/main_game_item/real_shovel.gd" id="35_mjx71"]
 [ext_resource type="Texture2D" uid="uid://47ixd5hsddft" path="res://assets/image/ui/ui_card/ShovelBank.png" id="42_pmw6j"]
 [ext_resource type="Script" uid="uid://drl7ywtxslsbm" path="res://scripts/ui/card/shovel_in_ui.gd" id="43_erab5"]
+[ext_resource type="Script" uid="uid://bkaiiq5qsbt5j" path="res://scripts/main_game_item/level_info.gd" id="46_y1sge"]
+[ext_resource type="FontFile" uid="uid://dqb8lum530s2f" path="res://assets/fonts/方正少儿_GBK.ttf" id="48_27j16"]
 [ext_resource type="Script" uid="uid://5unqafehbil7" path="res://scripts/fx/other_effect/canvas_layer_effect.gd" id="51_qfhda"]
 [ext_resource type="Script" uid="uid://pqbu71xw5ngn" path="res://scripts/character/components/detect_component/component_detect_global.gd" id="55_l4e4o"]
 
@@ -71,13 +74,18 @@ size = Vector2(150, 600)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ybhi1"]
 
+[sub_resource type="LabelSettings" id="LabelSettings_b2sx0"]
+font = ExtResource("48_27j16")
+font_size = 18
+font_color = Color(1, 1, 0.45490196, 1)
+shadow_size = 3
+shadow_color = Color(0, 0, 0, 1)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b6ai2"]
 size = Vector2(900, 600)
 
 [node name="MainGame" type="Node2D"]
 script = ExtResource("1_7dde3")
-test_change_sun_value = 10001
-bgm_choose_card = ExtResource("2_8fvtd")
 
 [node name="Manager" type="Node" parent="."]
 unique_name_in_owner = true
@@ -91,6 +99,9 @@ script = ExtResource("4_ee3wa")
 
 [node name="HM_Item" type="Node" parent="Manager/HandManager"]
 script = ExtResource("5_3d12c")
+
+[node name="HM_Null" type="Node" parent="Manager/HandManager"]
+script = ExtResource("6_du5qn")
 
 [node name="ZombieManager" type="Node" parent="Manager"]
 unique_name_in_owner = true
@@ -156,6 +167,10 @@ script = ExtResource("19_a514a")
 
 [node name="ProductionTimer" type="Timer" parent="Manager/DaySunsManager"]
 
+[node name="ZombieModeManager" type="Node" parent="Manager"]
+unique_name_in_owner = true
+script = ExtResource("20_27j16")
+
 [node name="CanvasLayerBG" type="CanvasLayer" parent="."]
 layer = -10
 follow_viewport_enabled = true
@@ -174,7 +189,9 @@ script = ExtResource("15_tsrbg")
 [node name="Area2DHome" type="Area2D" parent="CanvasLayerBG/Background/Home"]
 process_mode = 3
 position = Vector2(132.306, 8)
+collision_layer = 0
 collision_mask = 4
+monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CanvasLayerBG/Background/Home/Area2DHome"]
 position = Vector2(-28.93, 290.79)
@@ -358,7 +375,7 @@ follow_viewport_enabled = true
 [node name="Frontground" type="Node2D" parent="CanvasLayerFG"]
 unique_name_in_owner = true
 
-[node name="CanvasLayerCardSlotSeedRain" type="CanvasLayer" parent="."]
+[node name="CanvasLayerCardSlotFront" type="CanvasLayer" parent="."]
 unique_name_in_owner = true
 layer = 10
 
@@ -535,6 +552,35 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("23_vyo3a")
+
+[node name="LevelInfo" type="Control" parent="CanvasLayerUI"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 616.0
+offset_top = 572.0
+offset_right = 656.0
+offset_bottom = 596.0
+mouse_filter = 2
+script = ExtResource("46_y1sge")
+
+[node name="FlagProgressBar" parent="CanvasLayerUI/LevelInfo" instance=ExtResource("16_dc1ex")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="RoundLabel" type="Label" parent="CanvasLayerUI/LevelInfo"]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -156.0
+offset_right = -51.0
+offset_bottom = 23.0
+grow_horizontal = 0
+text = "当前为10轮"
+label_settings = SubResource("LabelSettings_b2sx0")
+horizontal_alignment = 2
 
 [node name="All_UI" type="Control" parent="CanvasLayerUI"]
 process_mode = 3
@@ -859,6 +905,10 @@ grow_vertical = 2
 text = "查看图鉴"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="CanvasLayerAlmanac" type="CanvasLayer" parent="CanvasLayerUI/All_UI/MainGameMenuOptionDialog/Option/Button1"]
+unique_name_in_owner = true
+layer = 60
 
 [node name="Button4" type="BaseButton" parent="CanvasLayerUI/All_UI/MainGameMenuOptionDialog/Option"]
 _import_path = NodePath("")
@@ -1228,14 +1278,6 @@ offset_right = 169.0
 offset_bottom = 155.0
 text = "没做"
 
-[node name="FlagProgressBar" parent="CanvasLayerUI" instance=ExtResource("16_dc1ex")]
-unique_name_in_owner = true
-visible = false
-offset_left = 614.0
-offset_top = 575.0
-offset_right = 614.0
-offset_bottom = 575.0
-
 [node name="LabelZombieSum" type="Label" parent="CanvasLayerUI"]
 unique_name_in_owner = true
 offset_left = 27.7894
@@ -1247,6 +1289,9 @@ theme_type_variation = &"Label3"
 text = "当前僵尸数量：0"
 
 [node name="LawnMovers" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="BrainOnZombieMode" type="Node2D" parent="."]
 unique_name_in_owner = true
 
 [node name="PlantCellsRoot" type="Node2D" parent="."]

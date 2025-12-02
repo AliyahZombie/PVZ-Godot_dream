@@ -25,7 +25,7 @@ func ready_norm_signal_connect():
 	attack_component.disable_component(ComponentNormBase.E_IsEnableFactor.DownGround)
 
 ## 每帧判断是否到达最后一格
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if is_dig:
 		if global_position.x < digger_target_pos_x:
 			## 更新方向

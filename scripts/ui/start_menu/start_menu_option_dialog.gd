@@ -12,27 +12,25 @@ class_name StartMenuOptionDialog
 func _ready() -> void:
 	## 为按钮添加音效
 	SoundManager.setup_ui_main_game_sound(self)
-	
-	musci_sound_signal(music_h_slider, AudioServer.get_bus_index("BGM"))
-	musci_sound_signal(sound_h_slider, AudioServer.get_bus_index("SFX"))
-	
+	music_sound_signal(music_h_slider, AudioServer.get_bus_index("BGM"))
+	music_sound_signal(sound_h_slider, AudioServer.get_bus_index("SFX"))
+
 	check_button.button_pressed = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
 
-func musci_sound_signal(h_slider: HSlider, bus_index):
-	
+func music_sound_signal(h_slider: HSlider, bus_index):
 	h_slider.value = SoundManager.get_volum(bus_index)
 	h_slider.value_changed.connect(func (v:float):
 		SoundManager.set_volume(bus_index, v)
 		Global.save_config()
 	)
-	
+
 
 ## 出现菜单
 func appear_menu():
 	await get_tree().create_timer(0.1).timeout
 
 	visible = true
-	mouse_filter = Control.MOUSE_FILTER_STOP 
+	mouse_filter = Control.MOUSE_FILTER_STOP
 
 
 ## 关闭菜单

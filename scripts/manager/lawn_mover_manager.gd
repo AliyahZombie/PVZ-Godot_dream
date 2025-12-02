@@ -40,8 +40,10 @@ func init_lawn_mover_manager(game_para:ResourceLevelData) -> void:
 	EventBus.subscribe("replenish_lawn_mover", replenish_lawn_mover)
 	if not is_lawn_mover:
 		return
-	create_all_lawn_movers(game_para.is_has_all_lawn_mover)
-
+	if game_para.save_game_data_main_game != null :
+		create_all_lawn_movers(game_para.save_game_data_main_game.lawn_mover_manager_data["is_has_all_lawn_mover"])
+	else:
+		create_all_lawn_movers()
 ## 生成所有的小推车
 func create_all_lawn_movers(is_has_all_lawn_mover:Array=[]):
 	all_lawn_movers_type = AllLawnMoverTypeFromGameScenes[game_scene]
@@ -76,6 +78,7 @@ func create_lawn_mover(lane:int, lawn_mover_type:E_LawnMoverType, global_pos:Vec
 	var new_lawn_mover:LawnMover = LawnMoverSecneMap[lawn_mover_type].instantiate()
 	new_lawn_mover.lane = lane
 	new_lawn_mover.z_index = lane * 50 + 40
+	## 由于在ready中会检测屋顶，使用全局位置，因此在add_child之前修改其局部位置
 	new_lawn_mover.position = global_pos - lawn_movers.global_position
 	lawn_movers.add_child(new_lawn_mover)
 	lawn_mover_appear(new_lawn_mover)

@@ -79,6 +79,18 @@ func judge_body_change(curr_hp:int, is_drop:=true):
 
 			body_change[i].update_body(self)
 
+## 获取所有的本体body掉落物
+func get_all_body_change()->Array[ZombieDropBase]:
+	var all_node_drop :Array[ZombieDropBase] = []
+
+	for i in range(body_change.size()):
+		if body_change[i] == null:
+			continue
+		var body_drop:ZombieDropBase = body_change[i].get_drop_node(self)
+		if body_drop != null:
+			all_node_drop.append(body_drop)
+	return all_node_drop
+
 #endregion
 
 #region 防具body变化

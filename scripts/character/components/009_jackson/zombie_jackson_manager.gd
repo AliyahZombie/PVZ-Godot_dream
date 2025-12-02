@@ -44,10 +44,10 @@ func start_anim() -> void:
 	animation_player.play(current_animation)
 
 ## 动画播放速度,舞王初始化
-func init_anim_speed(animation_origin_speed, init_random_speed:float):
+func init_anim_speed(curr_animation_origin_speed, curr_init_random_speed:float):
 	# 获取动画初始速度
-	self.animation_origin_speed = animation_origin_speed
-	self.init_random_speed = init_random_speed
+	self.animation_origin_speed = curr_animation_origin_speed
+	self.init_random_speed = curr_init_random_speed
 	animation_player.speed_scale = animation_origin_speed * init_random_speed
 	animation_curr_speed = animation_origin_speed * init_random_speed
 	for i in range(-1, 4):

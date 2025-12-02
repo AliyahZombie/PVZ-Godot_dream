@@ -5,7 +5,6 @@
 
 [resource]
 script = ExtResource("1_nhsat")
-level_name = "小赌怡情"
 is_day_sun = false
 look_show_zombie = false
 monster_mode = 0

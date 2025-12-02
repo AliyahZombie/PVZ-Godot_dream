@@ -68,7 +68,6 @@ func init_hammer_zombie_manager(game_para:ResourceLevelData):
 	speed_zombie_add = game_para.speed_zombie_add
 	speed_zombie_max = game_para.speed_zombie_max
 
-
 	## 生成旗帜
 	flag_progress_bar.init_flag_from_wave(max_wave)
 	progress_bar_segment_every_groud_min = 100.0 / (max_wave*10)
@@ -111,6 +110,7 @@ func _on_hammer_zombie_timer_timeout() -> void:
 	## 如果为第10波最后一小组
 	if curr_wave % 10 == 9 and curr_group_min == 9:
 		await get_tree().create_timer(3).timeout
+		@warning_ignore("integer_division")
 		set_progress_bar(curr_wave/10)
 		big_wave = true
 	else:

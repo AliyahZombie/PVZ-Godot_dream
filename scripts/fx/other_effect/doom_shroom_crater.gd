@@ -21,7 +21,9 @@ func init_crater(cell_type:int, plant_cell:PlantCell=null):
 	curr_crater_0.visible = false
 	curr_crater_1.visible = true
 	await get_tree().create_timer(creater_time/2).timeout
-	
+
 	curr_crater_1.visible = false
-	plant_cell.delete_crater()
-	
+	plant_cell.delete_crater_update_plant_cell_data()
+
+
+	queue_free()

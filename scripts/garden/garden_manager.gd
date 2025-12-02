@@ -31,11 +31,13 @@ enum E_NeedItem{
 @onready var coin_bank_bank: CoinBankLabel = $CanvasLayer/CoinBankLabel
 
 ## 当前花园背景页
-@export var curr_bg_type:E_GardenBgType=0
+@export var curr_bg_type:E_GardenBgType=E_GardenBgType.GreenHouse
 @export var curr_page:=0
 @onready var page_info_label: Label = $CanvasLayer/Next/Label
 @onready var page_info_label2: Label = $CanvasLayer/Next/Label2
 @onready var num_new_plant_no_plant_cell: Label = $CanvasLayer/NumNewPlantNoPlantCell
+
+@onready var store_enter_key: PVZButtonBase = $CanvasLayer/StoreEnterKey
 
 ## 当前背景页的节点
 var curr_bg_page_node :GardenBgPage
@@ -67,6 +69,8 @@ var curr_bg_page_node :GardenBgPage
 @onready var glove: GardenGlove = $CanvasLayer/Items/Glove
 ## 独轮车，与水族馆背景植物格子信号连接
 @onready var wheel_barrow: WheelBarrow = $CanvasLayer/Items/WheelBarrow
+## 商店场景画布
+@onready var canvas_layer_store: CanvasLayer = $CanvasLayerStore
 
 
 ## 当前物品
@@ -85,7 +89,6 @@ var curr_bg := []
 func _ready() -> void:
 	## bgm
 	SoundManager.play_bgm(bgm)
-	Global.signal_store_leave.connect(_update_back_from_store)
 	Global.coin_value_label = coin_bank_bank
 
 	## 连接ui物品信号
@@ -105,12 +108,11 @@ func _ready() -> void:
 	## 初始化第一类的第一页
 	init_new_page()
 
+	store_enter_key.pressed.connect(_on_store_enter_key_pressed)
+
 func init_new_page():
-	## 加载当前场景
-	var new_bg_page_list = []
 	## 背景种类
 	var curr_bg_data = Global.garden_data.get("第"+str(curr_bg_type)+"类背景", {})
-
 	## 当前背景种类的页码数据
 	var curr_bg_page_data = curr_bg_data.get("第"+str(curr_page)+"页", {})
 
@@ -135,13 +137,7 @@ func init_new_page():
 ## 从商店返回后更新
 func _update_back_from_store():
 	## 如果有新植物
-	if Global.curr_num_new_garden_plant:
-		## 先保存当前页
-		save_curr_page_data()
-
-		## 删除当前页的节点，重新初始化，放置植物
-		curr_bg_page_node.queue_free()
-		init_new_page()
+	init_new_page()
 	num_new_plant_no_plant_cell.text = "待放置植物数量:" + str(Global.curr_num_new_garden_plant)
 	page_info_label.text = str(curr_page + 1) + "/" + str(int(Global.garden_data["num_bg_page_"+str(curr_bg_type)]))
 	page_info_label2.text = str(curr_bg_type + 1) + "/" + str(E_GardenBgType.size())
@@ -160,9 +156,24 @@ func save_curr_page_data():
 	Global.garden_data["第"+str(curr_bg_type)+"类背景"]["第"+str(curr_page)+"页"] = curr_bg_page_data
 	## 独轮车信息
 	Global.garden_data["WheelBarrow"] = wheel_barrow.choosed_plant_data
-	Global.save_game_data()
+	Global.save_global_game_data()
 
 #region 按钮信号连接函数
+
+## 点击商店页
+func _on_store_enter_key_pressed():
+	## 先保存当前页数据
+	save_curr_page_data()
+	## 删除上一页的节点
+	curr_bg_page_node.queue_free()
+
+	SoundManager.play_other_SFX("tap")
+	## 商店场景添加为子节点
+	var store_node:StoreManager = load(Global.MainScenesMap[Global.MainScenes.Store]).instantiate()
+	canvas_layer_store.add_child(store_node)
+	store_node.siganl_exit_store.connect(_update_back_from_store)
+
+
 ## 跳转到下一页背景
 func _on_next_pressed() -> void:
 	## 先保存当前页数据
@@ -174,9 +185,9 @@ func _on_next_pressed() -> void:
 	curr_page += 1
 	if curr_page >= Global.garden_data["num_bg_page_"+str(curr_bg_type)]:
 		curr_page = 0
-		curr_bg_type += 1
+		curr_bg_type = (int(curr_bg_type) + 1) as E_GardenBgType
 		if curr_bg_type >= E_GardenBgType.size():
-			curr_bg_type = 0
+			curr_bg_type = 0 as E_GardenBgType
 
 	## 删除上一页的节点，初始化新页
 	curr_bg_page_node.queue_free()

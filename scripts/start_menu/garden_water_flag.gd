@@ -7,7 +7,7 @@ class_name GardenConditionFlag
 
 func _ready() -> void:
 	judge_garden_condition()
-	
+
 func judge_garden_condition():
 	if Global.curr_num_new_garden_plant > 0:
 		sprout.visible = true
@@ -19,7 +19,7 @@ func judge_garden_condition():
 		visible = true
 	else:
 		visible = false
-	
+
 func _judge_need_water() -> bool:
 	for i in range(GardenManager.E_GardenBgType.size()):
 		## 背景种类
@@ -39,7 +39,9 @@ func _judge_need_water() -> bool:
 						var now_unix = Time.get_unix_time_from_datetime_dict(now)
 						var next_unix = Time.get_unix_time_from_datetime_string(next_update_time)
 						if now_unix >= next_unix:
+							print("存在需要浇水的植物")
+
 							return true
-							
+
 	return false
-	
+

@@ -21,6 +21,9 @@ func ready_norm():
 	grow_timer.start()
 	create_sun_component.change_sun_value(mini_sun_value)
 
+	if is_zombie_mode:
+		create_sun_component.disable_component(ComponentNormBase.E_IsEnableFactor.GameMode)
+
 
 func ready_norm_signal_connect():
 	super()
@@ -42,3 +45,15 @@ func update_grow_speed(speed_factor:float):
 			grow_timer.paused = false
 
 			grow_timer.start(grow_timer.time_left / speed_factor)
+
+
+## 被僵尸啃食一次特殊效果,魅惑\大蒜\我是僵尸生产阳光
+func _be_zombie_eat_once_special(_attack_zombie:Zombie000Base):
+	if is_zombie_mode:
+		create_sun_component._on_be_eat_once()
+
+## 植物死亡
+func character_death():
+	if is_zombie_mode:
+		create_sun_component._on_character_death()
+	super()

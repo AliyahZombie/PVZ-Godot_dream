@@ -30,6 +30,14 @@ func update_body(curr_node:Node):
 		node.visible = false
 
 	if not node_drop.is_empty():
-		var drop:ZombieDropBase = curr_node.get_node(node_drop)
-		drop.acitvate_it()
+		if curr_node.has_node(node_drop):
+			var drop:ZombieDropBase = curr_node.get_node(node_drop)
+			drop.acitvate_it()
 
+
+func get_drop_node(curr_node:Node) -> ZombieDropBase:
+	if not node_drop.is_empty():
+		if curr_node.has_node(node_drop):
+			var drop:ZombieDropBase = curr_node.get_node(node_drop)
+			return drop
+	return null

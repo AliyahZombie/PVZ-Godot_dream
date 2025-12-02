@@ -41,8 +41,6 @@ func click_card(card:Card) -> void:
 		_clear_curr_data()
 	## 新植物数据
 	curr_card = card
-	if curr_card.is_seed_rain_card:
-		curr_card.mouse_filter_stop()
 	EventBus.push_event("hm_character_hand_card", [curr_card])
 	## 植物
 	if curr_card.card_plant_type != Global.PlantType.Null:
@@ -81,8 +79,8 @@ func click_card(card:Card) -> void:
 			click_card_column()
 
 ## 紫卡预种植植物身体明暗发光开始
-func start_preplant_purple_light(plant_condition:ResourcePlantCondition, plant_type:Global.PlantType):
-	curr_all_preplant_purple = plant_condition.get_all_preplant_purple(Global.main_game.plant_cell_manager.all_plant_cells, plant_type)
+func start_preplant_purple_light(curr_plant_condition:ResourcePlantCondition, plant_type:Global.PlantType):
+	curr_all_preplant_purple = curr_plant_condition.get_all_preplant_purple(Global.main_game.plant_cell_manager.all_plant_cells, plant_type)
 	for preplant_purple in curr_all_preplant_purple:
 		preplant_purple.preplant_purple_body_light_and_dark()
 #
@@ -102,8 +100,7 @@ func _clear_curr_data():
 	## 若当前存在卡片,事件总线推清除当前卡片数据,种子雨卡槽接受判断
 	if is_instance_valid(curr_card):
 		EventBus.push_event("hm_character_clear_card", [curr_card])
-		if curr_card.is_seed_rain_card:
-			curr_card.mouse_filter_start()
+
 	curr_card = null
 	characte_static.queue_free()
 	characte_static_shadow.queue_free()
@@ -133,8 +130,8 @@ func _update_cell_shadow(plant_cell:PlantCell, characte_static_shadow:Node2D) ->
 
 	## 僵尸
 	else:
-		## 如果当前格子不能种植僵尸
-		if not plant_cell.can_common_zombie:
+		## 如果当前格子不能种植僵尸(蹦极除外)
+		if not plant_cell.can_common_zombie and curr_card.card_zombie_type != Global.ZombieType.Z021Bungi:
 			return false
 		## 如果不是双地形
 		if zombie_row_type != Global.ZombieRowType.Both:
@@ -165,7 +162,7 @@ func get_zombie_static_shadow_global_position(plant_cell)->Vector2:
 	return global_pos
 
 ## 鼠标移出cell
-func mouse_exit(plant_cell:PlantCell):
+func mouse_exit(_plant_cell:PlantCell):
 	characte_static_shadow.modulate.a = 0
 	if is_mode_column:
 		_mouse_exit_column()
@@ -174,7 +171,7 @@ func mouse_exit(plant_cell:PlantCell):
 func click_cell(plant_cell:PlantCell):
 	if is_shadow_in_cell:
 		if curr_card.card_plant_type != 0:
-			plant_cell.create_plant(curr_card.card_plant_type, curr_card.is_initater)
+			plant_cell.create_plant(curr_card.card_plant_type, curr_card.is_imitater)
 		else:
 			var zombie_init_para:Dictionary = {
 				Zombie000Base.E_ZInitAttr.CharacterInitType:Character000Base.E_CharacterInitType.IsNorm,
@@ -189,7 +186,7 @@ func click_cell(plant_cell:PlantCell):
 					plant_cell.global_position.x + plant_cell.size.x/2,
 					Global.main_game.zombie_manager.all_zombie_rows[plant_cell.row_col.x].zombie_create_position.global_position.y
 				),
-				get_special_zombie_callable(curr_card.card_zombie_type, plant_cell)
+				GlobalUtils.get_special_zombie_callable(curr_card.card_zombie_type, plant_cell)
 			)
 
 		## 卡片种植完成发射信号
@@ -243,7 +240,7 @@ func _click_cell_column(plant_cell:PlantCell):
 			var _characte_static_shadow = characte_static_shadow_colum[i]
 			if _characte_static_shadow.modulate.a != 0:
 				var _plant_cell:PlantCell = Global.main_game.plant_cell_manager.all_plant_cells[i][plant_cell.row_col.y]
-				_plant_cell.create_plant(curr_card.card_plant_type, curr_card.is_initater)
+				_plant_cell.create_plant(curr_card.card_plant_type, curr_card.is_imitater)
 	else:
 		for i in range(characte_static_shadow_colum.size()):
 			## 当前格子的图像透明
@@ -264,7 +261,7 @@ func _click_cell_column(plant_cell:PlantCell):
 					Vector2(_characte_static_shadow.global_position.x,
 						Global.main_game.zombie_manager.all_zombie_rows[_plant_cell.row_col.x].zombie_create_position.global_position.y
 					),
-					get_special_zombie_callable(curr_card.card_zombie_type, _plant_cell)
+					GlobalUtils.get_special_zombie_callable(curr_card.card_zombie_type, _plant_cell)
 				)
 
 ## 柱子模式 清除数据
@@ -272,19 +269,5 @@ func _clear_curr_data_column():
 	for _characte_static_shadow in characte_static_shadow_colum:
 		_characte_static_shadow.queue_free()
 	characte_static_shadow_colum.clear()
-
-#endregion
-
-#region 特殊僵尸种植函数
-
-func get_special_zombie_callable(zombie_type:Global.ZombieType, plant_cell:PlantCell) -> Callable:
-	match zombie_type:
-		Global.ZombieType.Z021Bungi:
-			return plant_bungi.bind(plant_cell)
-	return Callable()
-
-## 蹦极僵尸
-func plant_bungi(zombie_bungi:Zombie021Bungi, plant_cell:PlantCell):
-	zombie_bungi.plant_cell = plant_cell
 
 #endregion

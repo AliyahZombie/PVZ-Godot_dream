@@ -128,11 +128,12 @@ func judge_is_have_enemy():
 	for ray_area in all_ray_area:
 		var all_enemy_area = ray_area.get_overlapping_areas()
 		for enemy_area in all_enemy_area:
+			if not enemy_area.owner is Character000Base:
+				continue
 			var enemy:Character000Base = enemy_area.owner
-
 			if _judge_enemy_is_can_be_attack(enemy):
 				enemy_can_be_attacked = enemy
-				if enemy_can_be_attacked is Plant000Base:
+				if enemy_can_be_attacked is Plant000Base and is_instance_valid(enemy_can_be_attacked):
 					enemy_can_be_attacked = get_first_be_hit_plant_in_cell(enemy_can_be_attacked)
 					if enemy_can_be_attacked == null:
 						continue

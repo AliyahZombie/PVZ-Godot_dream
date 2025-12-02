@@ -58,7 +58,7 @@ func _ready() -> void:
 
 	## 是否有斜坡
 	is_have_slope = is_instance_valid(Global.main_game.main_game_slope)
-	global_pos_y_shadow = Global.main_game.zombie_manager.all_zombie_rows[bullet_lane].zombie_create_position.global_position.y
+	global_pos_y_shadow = Global.main_game.zombie_manager.all_zombie_rows[lane].zombie_create_position.global_position.y
 
 	update_shadow_global_pos()
 
@@ -129,7 +129,7 @@ func update_shadow_global_pos():
 func update_global_pos_y_shadow_on_have_slope():
 	## 获取相对斜坡的位置
 	var slope_y = Global.main_game.main_game_slope.get_all_slope_y(global_position.x)
-	global_pos_y_shadow = Global.main_game.zombie_manager.all_zombie_rows[bullet_lane].zombie_create_position.global_position.y + slope_y
+	global_pos_y_shadow = Global.main_game.zombie_manager.all_zombie_rows[lane].zombie_create_position.global_position.y + slope_y
 
 
 ## 自定义的缓动函数，分段加速,抛物线移动到最后时加速
@@ -164,7 +164,7 @@ func be_umbrella_bounce():
 		## 被弹开之后,删除子弹碰撞器
 		area_2d_attack.queue_free()
 
-		await get_tree().create_timer(0.1).timeout
+		#await get_tree().create_timer(0.1).timeout
 		is_bounce_update = true
 		## 原本的终点和起点的差值
 		var ori_diff = enemy_last_global_pos - start_global_pos

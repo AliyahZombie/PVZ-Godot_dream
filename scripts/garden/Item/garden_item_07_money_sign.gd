@@ -35,7 +35,7 @@ func use_it():
 	plant_cell_give_dave = SceneRegistry.PLANT_CELL_GARDEN.instantiate()
 	plant_cell_give_dave.position += Vector2(-40,-40)
 	crazy_dave.reset_dave(dave_dialog, plant_cell_give_dave)
-	print(plant_cell_give_dave.global_position)
+	#print(plant_cell_give_dave.global_position)
 	plant_cell_give_dave.init_curr_plant_cell(choosed_plant_data)
 	crazy_dave.is_activate = true
 	crazy_dave.visible = true

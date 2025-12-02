@@ -15,8 +15,8 @@ var frame_num:=0
 
 func _ready() -> void:
 	Global.load_config()
-	Global.save_config()
-
+	#Global.save_config()
+	#print("音频管理器")
 
 @warning_ignore("unused_parameter")
 func _physics_process(delta: float) -> void:
@@ -136,9 +136,17 @@ const SFXCharacterMap := {
 	&"blover": preload("res://assets/audio/SFX/plant/blover.ogg"),
 	## 磁力菇
 	&"magnetshroom": preload("res://assets/audio/SFX/plant/magnetshroom.ogg"),
+	## 磁力菇
+	&"coblaunch": preload("res://assets/audio/SFX/plant/coblaunch.ogg"),
+
+
+
 
 	## -------------------------------僵尸-------------------------------
 	## 通用音效
+	## 掉头
+	&"limbs_pop": preload("res://assets/audio/SFX/zombie/limbs_pop.ogg"),
+
 	## 啃食
 	&"Chomp":[
 		preload("res://assets/audio/SFX/zombie/chomp.ogg"),
@@ -185,9 +193,9 @@ const SFXCharacterMap := {
 	## 气球爆炸
 	&"balloon_pop":preload("res://assets/audio/SFX/zombie/balloon_pop.ogg"),
 	## 矿工僵尸绝地
-	&"digger_zombie": preload("res://assets/audio/SFX/Zombie/digger_zombie.ogg"),
+	&"digger_zombie": preload("res://assets/audio/SFX/zombie/digger_zombie.ogg"),
 	## 跳跳僵尸跳跃
-	&"pogo_zombie": preload("res://assets/audio/SFX/Zombie/pogo_zombie.ogg"),
+	&"pogo_zombie": preload("res://assets/audio/SFX/zombie/pogo_zombie.ogg"),
 	## 蹦极僵尸入场
 	&"bungee_scream":[
 		preload("res://assets/audio/SFX/zombie/bungee_scream.ogg"),
@@ -381,6 +389,8 @@ const SFXOtherMap := {
 	&"prize": preload("res://assets/audio/SFX/garden/prize.ogg"),
 	## -------- 僵尸出土 ------------
 	&"dirt_rise": preload("res://assets/audio/SFX/zombie/dirt_rise.ogg"),
+	## --------- 花瓶破碎     -------------
+	&"vase_breaking": preload("res://assets/audio/SFX/item/vase_breaking.ogg"),
 
 
 	##-------------------------- 花园相关 --------------------------
@@ -446,11 +456,9 @@ func setup_ui_main_game_sound(node:Node):
 #region 音量大小调整
 func get_volum(bus_index:int):
 	var db := AudioServer.get_bus_volume_db(bus_index)
-
 	return db_to_linear(db)
 
 func set_volume(bus_index:int, v:float) ->void:
 	var db := linear_to_db(v)
 	AudioServer.set_bus_volume_db(bus_index, db)
-
 #endregion

@@ -6,7 +6,7 @@ var is_activate:= false
 ## 加农炮攻击信号
 signal signal_cannon_fire(target_global_pos:Vector2)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if is_activate:
 		global_position = get_global_mouse_position()
 

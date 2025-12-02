@@ -7,13 +7,13 @@ var is_call := false
 var is_call_be_hypno:bool = false
 
 ## 初始化伴舞赋值，被召唤的伴舞，舞王管理器调用
-func init_dancer_be_call(dancer_id, animation_origin_speed, animation_curr_speed, jackson_init_random_speed, jackson_manager, is_hypnotized):
+func init_dancer_be_call(curr_dancer_id, curr_animation_origin_speed, animation_curr_speed, jackson_init_random_speed, curr_jackson_manager, is_hypnotized):
 	is_call = true
-	self.dancer_id = dancer_id
-	self.jackson_manager = jackson_manager
+	self.dancer_id = curr_dancer_id
+	self.jackson_manager = curr_jackson_manager
 	## 如果舞王被魅惑
 	is_call_be_hypno = is_hypnotized
-	call_deferred(&"init_anim_speed_dance", animation_origin_speed, animation_curr_speed, jackson_init_random_speed)
+	call_deferred(&"init_anim_speed_dance", curr_animation_origin_speed, animation_curr_speed, jackson_init_random_speed)
 
 ## 重写舞王初始方法，ready调用
 func _init_dance():
@@ -36,9 +36,9 @@ func _init_dance():
 		be_hypno()
 
 ## 召唤伴舞初始化时重置动画播放速度, 舞王管理器调用
-func init_anim_speed_dance(animation_origin_speed, curr_speed, jackson_init_random_speed):
+func init_anim_speed_dance(curr_animation_origin_speed, curr_speed, jackson_init_random_speed):
 	## 获取动画初始速度
-	self.animation_origin_speed = animation_origin_speed
+	self.animation_origin_speed = curr_animation_origin_speed
 	update_speed_factor(jackson_init_random_speed, E_Influence_Speed_Factor.InitRandomSpeed)
 	anim_component.set_animation_origin_speed(animation_origin_speed)
 	anim_component.owner_update_speed(jackson_init_random_speed)
@@ -87,4 +87,4 @@ func jackson_be_hypno():
 	jackson_manager.start_anim()
 	jackson_manager.init_anim_speed(animation_origin_speed, influence_speed_factors[E_Influence_Speed_Factor.InitRandomSpeed])
 	jackson_manager.is_hypnotized = true
-	print("舞王或伴舞被魅惑")
+	#print("舞王或伴舞被魅惑")

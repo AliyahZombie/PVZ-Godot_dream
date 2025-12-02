@@ -47,7 +47,7 @@ func ready_norm_signal_connect():
 	attack_component = attack_component as AttackComponentBulletPultBase
 	attack_component.signal_shoot_bullet.connect(update_bullet_data)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	## 每帧判断是否需要移动到攻击位置
 	if not is_attack_pos:
 		if global_position.x <= global_pos_x_can_attack:
@@ -112,8 +112,8 @@ func update_bullet_data():
 		if num_real_bullet_node_bullet == 0:
 			return
 		if curr_num_shoot_bullet % num_real_bullet_node_bullet == 0:
-			print("当前数量", curr_num_shoot_bullet, "当前为第几颗代表", curr_num_shoot_bullet/num_real_bullet_node_bullet)
-			node_bullet[curr_num_shoot_bullet/num_real_bullet_node_bullet].visible = false
+			print("当前数量", curr_num_shoot_bullet, "当前为第几颗代表", int(float(curr_num_shoot_bullet)/num_real_bullet_node_bullet))
+			node_bullet[int(float(curr_num_shoot_bullet)/num_real_bullet_node_bullet)].visible = false
 
 ## 被地刺扎
 func be_caltrop():

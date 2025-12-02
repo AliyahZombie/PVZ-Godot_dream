@@ -27,7 +27,7 @@ func _attack_once():
 
 ## 被压扁
 ## [character:Character000Base] 发动攻击的角色
-func be_flattened(character:Character000Base):
+func be_flattened_from_enemy(character:Character000Base):
 	if not is_flattened:
 		is_flattened = true
 		character.be_caltrop()

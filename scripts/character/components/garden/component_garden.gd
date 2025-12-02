@@ -126,7 +126,8 @@ func _calculate_next_need_time(time_range:Vector2):
 func update_growth_stage():
 	match curr_growth_stage:
 		GardenManager.E_GrowthStage.Sprout:
-			print("发芽状态")
+			#print("发芽状态")
+			pass
 		GardenManager.E_GrowthStage.Small:
 			change_body_scale(Vector2(0.33 * direction_x, 0.33))
 		GardenManager.E_GrowthStage.Medium:
@@ -180,7 +181,7 @@ func up_growth_stage():
 	if curr_growth_stage == GardenManager.E_GrowthStage.Sprout:
 		curr_plant_type = Global.curr_plant.pick_random()
 		direction_x = [-1,1].pick_random()
-	curr_growth_stage += 1
+	curr_growth_stage = (curr_growth_stage + 1) as GardenManager.E_GrowthStage
 
 ## 改变植物大小
 func change_body_scale(new_scale:Vector2):

@@ -71,3 +71,8 @@ func create_new_zombie(new_zombie_type:Global.ZombieType, anim_multiply:float=1.
 		new_zombie = null
 	else:
 		print("当前墓碑正在生产僵尸")
+
+## 墓碑死亡
+func tombstone_death():
+	plant_cell.tombstone.plant_cell.tombstone_death_update_plant_cell_data()
+	queue_free()

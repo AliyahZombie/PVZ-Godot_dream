@@ -21,5 +21,5 @@ func ready_norm_signal_connect():
 	signal_update_speed.connect(attack_component.owner_update_speed)
 
 ## 害怕组件信号发射改变植物害怕状态
-func change_is_scared(is_scared:bool):
-	self.is_scared = is_scared
+func change_is_scared(curr_is_scared:bool):
+	self.is_scared = curr_is_scared

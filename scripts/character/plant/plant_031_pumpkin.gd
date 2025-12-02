@@ -2,6 +2,11 @@ extends Plant000Base
 class_name Plant031Pumpkin
 
 @onready var hp_stage_change_component: HpStageChangeComponent = $HpStageChangeComponent
+@onready var pumpkin_back: Sprite2D = $Body/BodyCorrect/Pumpkin_back
+
+func ready_norm():
+	super()
+	pumpkin_back.z_index -= 1
 
 
 func ready_norm_signal_connect():

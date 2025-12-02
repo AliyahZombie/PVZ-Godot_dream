@@ -62,6 +62,9 @@ func ready_norm_signal_connect():
 	)
 
 #endregion
+
+
+
 #region 修改速度
 ## 修改速度，发射信号
 ## 继承重写该方法，速度变化时将速度变化结果给舞王管理器，舞王管理器选择最小速度作为真实速度,调用manager_update_anim_speed方法
@@ -119,6 +122,8 @@ func anim_judge_death():
 func character_death():
 	## 更新舞王管理器对应id僵尸速度和对应僵尸
 	dancer_manager_change()
+	## 死亡时修改自身速度，避免死亡时被伴舞被定住无法播放死亡动画删除自己
+	signal_update_speed.emit(influence_speed_factors.get(E_Influence_Speed_Factor.InitRandomSpeed, 1))
 	super()
 
 ## 僵尸更新舞王管理器，并更新舞王管理器父节点

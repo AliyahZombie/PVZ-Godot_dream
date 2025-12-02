@@ -62,12 +62,18 @@ metadata/_custom_type_script = "uid://dlfnh7fjqyil6"
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8c1ng"]
 
-[node name="Store" type="CanvasLayer" node_paths=PackedStringArray("all_goods")]
-layer = 3
+[node name="Store" type="Control" node_paths=PackedStringArray("all_goods")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_2eot4")
 all_goods = [NodePath("Bg/Car2/Panel/HBoxContainer/Goods1"), NodePath("Bg/Car2/Panel/HBoxContainer/Goods2"), NodePath("Bg/Car2/Panel/HBoxContainer/Goods3"), NodePath("Bg/Car2/Panel/HBoxContainer/Goods4"), NodePath("Bg/Car2/Panel/HBoxContainer2/Goods1")]
 
 [node name="Bg" type="TextureRect" parent="."]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -232,29 +238,29 @@ z_index = -1
 position = Vector2(32, 64)
 
 [node name="Pot_bottom" parent="Bg/Car2/Panel/HBoxContainer2/Goods1/FlowerPot/Body/BodyCorrect" index="6"]
-position = Vector2(13.5, 51.471294)
-scale = Vector2(0.8, 0.9695569)
+position = Vector2(13.5, 54.69994)
+scale = Vector2(0.8, 0.8206697)
 
 [node name="Pot_stem" parent="Bg/Car2/Panel/HBoxContainer2/Goods1/FlowerPot/Body/BodyCorrect" index="7"]
-position = Vector2(23.253042, 10.606084)
-rotation = -0.2415386
-scale = Vector2(0.7994696, 0.7994696)
+position = Vector2(23.866646, 10.966677)
+rotation = -0.03956652
+scale = Vector2(0.8, 0.8)
 
 [node name="Pot_leaf1" parent="Bg/Car2/Panel/HBoxContainer2/Goods1/FlowerPot/Body/BodyCorrect" index="8"]
-position = Vector2(28.546959, 6.6591263)
-rotation = 0.25346714
-scale = Vector2(0.7994696, 0.7994696)
+position = Vector2(27.400059, 7.666647)
+rotation = 0.06749599
+scale = Vector2(0.7993333, 0.7993333)
 
 [node name="Pot_leaf2" parent="Bg/Car2/Panel/HBoxContainer2/Goods1/FlowerPot/Body/BodyCorrect" index="9"]
-position = Vector2(17.3, 10.906084)
-rotation = -0.25357383
-scale = Vector2(0.7994696, 0.7994696)
+position = Vector2(17.39997, 10.100119)
+rotation = -0.06865949
+scale = Vector2(0.7993333, 0.7993333)
 
 [node name="Pot_top" parent="Bg/Car2/Panel/HBoxContainer2/Goods1/FlowerPot/Body/BodyCorrect" index="10"]
-position = Vector2(7.2, 11.259127)
+position = Vector2(7.2, 13.033294)
 
 [node name="DownPlantContainer" parent="Bg/Car2/Panel/HBoxContainer2/Goods1/FlowerPot" index="4"]
-position = Vector2(0, -2.0408738)
+position = Vector2(0, -0.26670614)
 
 [node name="Plant1000Sprout" parent="Bg/Car2/Panel/HBoxContainer2/Goods1/FlowerPot/DownPlantContainer" index="0" node_paths=PackedStringArray("node_no_change_direction") instance=ExtResource("19_256br")]
 position = Vector2(0, -26.78)
@@ -346,6 +352,7 @@ vertical_alignment = 1
 dialog_resource = SubResource("Resource_2rser")
 
 [node name="CoinBankLabel" parent="." instance=ExtResource("20_vkx5w")]
+layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
@@ -356,38 +363,44 @@ offset_bottom = -51.0
 grow_vertical = 0
 auto_hide = false
 
-[node name="CanvasLayerConfirmGoods" type="CanvasLayer" parent="."]
-layer = 4
+[node name="ConfirmGoods" type="Control" parent="."]
 visible = false
-script = ExtResource("22_wb67t")
-
-[node name="ChooseNode" type="Control" parent="CanvasLayerConfirmGoods"]
-layout_mode = 3
-anchors_preset = 0
-offset_left = 322.0
-offset_top = 198.0
-offset_right = 667.0
-offset_bottom = 509.0
-theme = ExtResource("22_iukld")
-
-[node name="ChooseMouseStopPanel" type="Panel" parent="CanvasLayerConfirmGoods/ChooseNode"]
-layout_mode = 0
-offset_left = -323.0
-offset_top = -196.0
-offset_right = 1597.0
-offset_bottom = 884.0
-theme_override_styles/panel = SubResource("StyleBoxEmpty_8c1ng")
-
-[node name="Panel" type="Panel" parent="CanvasLayerConfirmGoods/ChooseNode"]
+z_index = 1000
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("22_iukld")
+script = ExtResource("22_wb67t")
+
+[node name="ChooseMouseStopPanel" type="Panel" parent="ConfirmGoods"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8c1ng")
+
+[node name="Panel" type="Panel" parent="ConfirmGoods"]
+custom_minimum_size = Vector2(345, 311)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -471.0
+offset_top = -117.0
+offset_right = -126.0
+offset_bottom = 194.0
+grow_horizontal = 0
+grow_vertical = 2
 theme_type_variation = &"PanelDialogBG"
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayerConfirmGoods/ChooseNode/Panel"]
+[node name="MarginContainer" type="MarginContainer" parent="ConfirmGoods/Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -399,7 +412,7 @@ theme_override_constants/margin_top = 80
 theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 100
 
-[node name="ChooseContent" type="Label" parent="CanvasLayerConfirmGoods/ChooseNode/Panel/MarginContainer"]
+[node name="ChooseContent" type="Label" parent="ConfirmGoods/Panel/MarginContainer"]
 custom_minimum_size = Vector2(277, 0)
 layout_mode = 2
 text = "是否购买该商品"
@@ -407,7 +420,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayerConfirmGoods/ChooseNode/Panel"]
+[node name="HBoxContainer" type="HBoxContainer" parent="ConfirmGoods/Panel"]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -420,7 +433,7 @@ offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="PVZButton" type="BaseButton" parent="CanvasLayerConfirmGoods/ChooseNode/Panel/HBoxContainer"]
+[node name="PVZButtonYes" type="BaseButton" parent="ConfirmGoods/Panel/HBoxContainer"]
 _import_path = NodePath("")
 unique_name_in_owner = false
 process_mode = 0
@@ -489,7 +502,7 @@ shortcut_in_tooltip = true
 script = ExtResource("23_wb67t")
 metadata/_custom_type_script = "uid://parybxg7tb1k"
 
-[node name="Panel" type="Panel" parent="CanvasLayerConfirmGoods/ChooseNode/Panel/HBoxContainer/PVZButton"]
+[node name="Panel" type="Panel" parent="ConfirmGoods/Panel/HBoxContainer/PVZButtonYes"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -499,7 +512,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_type_variation = &"PanelButtonBG"
 
-[node name="Label" type="Label" parent="CanvasLayerConfirmGoods/ChooseNode/Panel/HBoxContainer/PVZButton"]
+[node name="Label" type="Label" parent="ConfirmGoods/Panel/HBoxContainer/PVZButtonYes"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -510,7 +523,7 @@ text = "确认"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="PVZButton2" type="BaseButton" parent="CanvasLayerConfirmGoods/ChooseNode/Panel/HBoxContainer"]
+[node name="PVZButtonNo" type="BaseButton" parent="ConfirmGoods/Panel/HBoxContainer"]
 _import_path = NodePath("")
 unique_name_in_owner = false
 process_mode = 0
@@ -579,7 +592,7 @@ shortcut_in_tooltip = true
 script = ExtResource("23_wb67t")
 metadata/_custom_type_script = "uid://parybxg7tb1k"
 
-[node name="Panel" type="Panel" parent="CanvasLayerConfirmGoods/ChooseNode/Panel/HBoxContainer/PVZButton2"]
+[node name="Panel" type="Panel" parent="ConfirmGoods/Panel/HBoxContainer/PVZButtonNo"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -589,7 +602,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_type_variation = &"PanelButtonBG"
 
-[node name="Label" type="Label" parent="CanvasLayerConfirmGoods/ChooseNode/Panel/HBoxContainer/PVZButton2"]
+[node name="Label" type="Label" parent="ConfirmGoods/Panel/HBoxContainer/PVZButtonNo"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -601,7 +614,5 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [connection signal="pressed" from="Bg/StoreMainMenuButton" to="." method="_on_store_main_menu_button_pressed"]
-[connection signal="pressed" from="CanvasLayerConfirmGoods/ChooseNode/Panel/HBoxContainer/PVZButton" to="CanvasLayerConfirmGoods" method="_on_pvz_button_pressed"]
-[connection signal="pressed" from="CanvasLayerConfirmGoods/ChooseNode/Panel/HBoxContainer/PVZButton2" to="CanvasLayerConfirmGoods" method="_on_pvz_button_2_pressed"]
 
 [editable path="Bg/Car2/Panel/HBoxContainer2/Goods1/FlowerPot"]

@@ -105,15 +105,15 @@ func select_spawn_row(zombie_row_type: Global.ZombieRowType, special_base_weight
 
 	return 5
 
-## 获取概率
-func get_row_probabilities() -> Array:
-	var smooth_weights = calculate_smooth_weights(0)
-	var total = 0.0
-	for w in smooth_weights:
-		total += w
-
-	var probabilities = []
-	for w in smooth_weights:
-		probabilities.append(w / total if total > 0 else 0.0)
-
-	return probabilities
+### 获取概率
+#func get_row_probabilities() -> Array:
+	#var smooth_weights = calculate_smooth_weights(0 as Global.ZombieRowType)
+	#var total = 0.0
+	#for w in smooth_weights:
+		#total += w
+#
+	#var probabilities = []
+	#for w in smooth_weights:
+		#probabilities.append(w / total if total > 0 else 0.0)
+#
+	#return probabilities
